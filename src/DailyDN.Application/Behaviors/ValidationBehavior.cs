@@ -30,7 +30,7 @@ namespace DailyDN.Application.Behaviors
 
             ValidationResult[] validationResults =
                 await Task.WhenAll(_validators.Select(v => v.ValidateAsync(context, cancellationToken)));
-            List<ValidationFailure> failures = validationResults.SelectMany(    r => r.Errors).Where(f => f != null).ToList();
+            List<ValidationFailure> failures = [.. validationResults.SelectMany(    r => r.Errors).Where(f => f != null)];
 
             if (failures.Count != 0)
             {
