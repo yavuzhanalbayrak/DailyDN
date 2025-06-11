@@ -1,7 +1,9 @@
 
 using DailyDN.API.Middleware;
 using DailyDN.Application;
+using DailyDN.Infrastructure.Contexts;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace DailyDN.API
 {
@@ -18,6 +20,10 @@ namespace DailyDN.API
                 options.AssumeDefaultVersionWhenUnspecified = true;
                 options.DefaultApiVersion = new ApiVersion(1, 0);
             });
+
+            services.AddDbContext<DailyDNDbContext>(options =>
+                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+
 
             return services;
         }
