@@ -75,13 +75,13 @@ namespace DailyDN.API.Middleware
 
         private static async Task HandleGenericException(Exception ex, HttpContext context, ILogger<ErrorHandlerMiddleware> logger)
         {
-            logger.LogError(ex, "Unexpected error. Path:{Path}", ex.Message);
+            logger.LogError(ex, "Unexpected error occurred. Path: {Path}", context.Request.Path);
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
             await context.Response.WriteAsJsonAsync(new ErrorDetails
             {
                 StatusCode = context.Response.StatusCode,
-                Message = "Internal Server Error. Kindly contact support"
+                Message = "An unexpected error occurred. Please contact support."
             }.ToString());
         }
     }
