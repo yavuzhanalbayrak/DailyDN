@@ -15,9 +15,8 @@ namespace DailyDN.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Result))]
         [HttpPost("login")]
         [MapToApiVersion("1.0")]
-        public async Task<IActionResult> Login([FromBody] LoginCommand request)
+        public async Task<IActionResult> Login([FromBody] LoginCommand command)
         {
-            var command = new LoginCommand(request.UserName, request.Password);
             var result = await _mediator.Send(command);
             return Ok(result);
         }
