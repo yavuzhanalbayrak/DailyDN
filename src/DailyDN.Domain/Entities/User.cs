@@ -15,6 +15,8 @@ namespace DailyDN.Domain.Entities
         public bool IsEmailVerified { get; private set; }
         public DateTime? LastLoginAt { get; private set; }
 
+        public ICollection<UserRole> UserRoles { get; private set; } = [];
+
         private User() { }
 
         public User(string name, string surname, string email, string passwordHash, string? avatarUrl = null, int id = 0)
@@ -64,6 +66,14 @@ namespace DailyDN.Domain.Entities
         public void SetAvatar(string? avatarUrl)
         {
             AvatarUrl = avatarUrl;
+        }
+
+        public IEnumerable<Claim> GetClaims()
+        {
+            return UserRoles
+                .SelectMany(ur => ur.Role.RoleClaims)
+                .Select(rc => rc.Claim)
+                .Distinct();
         }
 
         public string FullName => $"{Name} {Surname}";
