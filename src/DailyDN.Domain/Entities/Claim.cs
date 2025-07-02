@@ -4,7 +4,7 @@ namespace DailyDN.Domain.Entities
     {
         public string Type { get; private set; } = null!;
         public string Value { get; private set; } = null!;
-        public ICollection<RoleClaim> RoleClaims { get; private set; } = new List<RoleClaim>();
+        public ICollection<RoleClaim> RoleClaims { get; private set; } = [];
 
         private Claim() { }
 
