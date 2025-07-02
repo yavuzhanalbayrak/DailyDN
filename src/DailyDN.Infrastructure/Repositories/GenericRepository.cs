@@ -6,18 +6,11 @@ using Microsoft.Extensions.Logging;
 
 namespace DailyDN.Infrastructure.Repositories
 {
-    public class GenericRepository<T> : IGenericRepository<T> where T : Entity
+    public class GenericRepository<T>(IApplicationContext context, ILogger<GenericRepository<T>> logger) : IGenericRepository<T> where T : Entity
     {
-        protected readonly IApplicationContext _context;
-        protected readonly DbSet<T> _dbSet;
-        protected readonly ILogger<GenericRepository<T>> _logger;
-
-        public GenericRepository(IApplicationContext context, ILogger<GenericRepository<T>> logger)
-        {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
-            _dbSet = context.Set<T>();
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        }
+        protected readonly IApplicationContext _context = context ?? throw new ArgumentNullException(nameof(context));
+        protected readonly DbSet<T> _dbSet = context.Set<T>();
+        protected readonly ILogger<GenericRepository<T>> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         public virtual async Task<IReadOnlyList<T>> GetAllAsync()
         {
