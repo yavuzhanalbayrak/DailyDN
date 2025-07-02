@@ -6,6 +6,7 @@ namespace DailyDN.Application.Services
     {
         public int UserId { get; set; }
         public bool IsAuthenticated { get; set; }
+        public Role Role { get; set; }
         public List<Claim> Claims { get; set; }
     }
 }
