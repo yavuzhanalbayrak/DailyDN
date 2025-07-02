@@ -6,6 +6,7 @@ using DailyDN.Application.Profiles;
 using FluentValidation;
 using DailyDN.Application.Services;
 using DailyDN.Application.Services.Impl;
+using Microsoft.AspNetCore.Identity;
 
 namespace DailyDN.Application
 {
@@ -23,6 +24,7 @@ namespace DailyDN.Application
             services.AddAutoMapper(typeof(MappingProfile).Assembly);
             services.AddValidatorsFromAssembly(ApplicationAssembly.Instance);
             services.AddScoped<IAuthenticatedUser, AuthenticatedUser>();
+            services.AddScoped(typeof(IPasswordHasher<>), typeof(PasswordHasher<>));
 
             return services;
         }

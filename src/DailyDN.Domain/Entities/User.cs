@@ -11,6 +11,8 @@ namespace DailyDN.Domain.Entities
 
         public string? OtpCode { get; private set; }
         public DateTime? OtpGeneratedAt { get; private set; }
+        public Guid? Guid { get; set; }
+        public bool IsGuidUsed { get; set; } = false;
 
         public bool IsEmailVerified { get; private set; }
         public DateTime? LastLoginAt { get; private set; }
@@ -30,9 +32,10 @@ namespace DailyDN.Domain.Entities
             AvatarUrl = avatarUrl;
         }
 
-        public void SetOtp(string code)
+        public void SetOtp(string code, Guid guid)
         {
             OtpCode = code;
+            Guid = guid;
             OtpGeneratedAt = DateTime.UtcNow;
         }
 
