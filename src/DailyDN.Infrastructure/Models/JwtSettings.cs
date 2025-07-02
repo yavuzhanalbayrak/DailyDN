@@ -6,5 +6,6 @@ namespace DailyDN.Infrastructure.Models
         public string Audience { get; set; } = string.Empty;
         public string Key { get; set; } = string.Empty;
         public int ExpiresInMinutes { get; set; }
+        public int RefreshTokenExpiresInDays { get; set; }
     }
 }

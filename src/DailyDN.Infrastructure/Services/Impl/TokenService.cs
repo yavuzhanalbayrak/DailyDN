@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using DailyDN.Domain.Entities;
 using DailyDN.Infrastructure.Contexts;
@@ -14,7 +15,7 @@ namespace DailyDN.Infrastructure.Services.Impl
     {
         private readonly JwtSettings _jwtSettings = jwtOptions.Value;
 
-        public async Task<TokenResponse> CreateToken(int userId)
+        private async Task<TokenResponse> GenerateAccessToken(int userId)
         {
             var user = await context.Set<User>()
                 .Include(u => u.UserRoles)
@@ -42,11 +43,12 @@ namespace DailyDN.Infrastructure.Services.Impl
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
             var credential = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
+            var expiration = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiresInMinutes);
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiresInMinutes),
+                Expires = expiration,
                 SigningCredentials = credential,
                 Issuer = _jwtSettings.Issuer,
                 Audience = _jwtSettings.Audience,
@@ -59,7 +61,79 @@ namespace DailyDN.Infrastructure.Services.Impl
             {
                 Token = jwt,
                 UserId = user.Id,
+                Expiration = expiration,
             };
         }
+
+        private static string GenerateRefreshToken()
+        {
+            byte[] randomBytes = new byte[32];
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(randomBytes);
+            return Convert.ToBase64String(randomBytes);
+        }
+
+        private static string HashToken(string refreshToken)
+        {
+            var hash = SHA256.HashData(Encoding.UTF8.GetBytes(refreshToken));
+            return Convert.ToBase64String(hash);
+        }
+
+        public async Task<TokenResponse> GenerateTokens(int userId, string ipAddress, string userAgent)
+        {
+            TokenResponse token = await GenerateAccessToken(userId);
+
+            string rawRefreshToken = GenerateRefreshToken();
+            var refreshTokenHash = HashToken(rawRefreshToken);
+
+            DateTime refreshTokenExpiry = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpiresInDays);
+
+            context.Set<UserSession>().Add(new UserSession
+            (
+                userId,
+                refreshTokenHash,
+                ipAddress,
+                userAgent,
+                refreshTokenExpiry
+            ));
+            await context.SaveChangesAsync();
+
+            token.RefreshToken = rawRefreshToken;
+
+            return token;
+        }
+
+        public async Task<TokenResponse> RotateRefreshToken(string oldRefreshToken, string ipAddress, string userAgent)
+        {
+            var oldHash = HashToken(oldRefreshToken);
+
+            var session = await context.Set<UserSession>()
+                .FirstOrDefaultAsync(s => s.RefreshToken == oldHash && !s.IsRevoked);
+
+            if (session == null || !session.IsActive())
+                throw new SecurityTokenException("Invalid refresh token.");
+
+            session.Revoke();
+
+            var newRaw = GenerateRefreshToken();
+            var newHash = HashToken(newRaw);
+
+            var newSession = new UserSession(
+                session.UserId,
+                newHash,
+                ipAddress,
+                userAgent,
+                DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpiresInDays)
+            );
+
+            context.Set<UserSession>().Add(newSession);
+            await context.SaveChangesAsync();
+
+            var accessToken = await GenerateAccessToken(session.UserId);
+            accessToken.RefreshToken = newRaw;
+
+            return accessToken;
+        }
+
     }
 }

@@ -16,6 +16,7 @@ namespace DailyDN.Domain.Entities
         public DateTime? LastLoginAt { get; private set; }
 
         public ICollection<UserRole> UserRoles { get; private set; } = [];
+        public ICollection<UserSession> UserSessions { get; private set; } = [];
 
         private User() { }
 

@@ -12,6 +12,7 @@ namespace DailyDN.Infrastructure.Contexts
         public DbSet<Role> Roles { get; set; }
         public DbSet<RoleClaim> RoleClaims { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
+        public DbSet<UserSession> UserSessions { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -25,6 +26,7 @@ namespace DailyDN.Infrastructure.Contexts
             ApplyGlobalFilters<Role>(modelBuilder);    
             ApplyGlobalFilters<UserRole>(modelBuilder);    
             ApplyGlobalFilters<RoleClaim>(modelBuilder);     
+            ApplyGlobalFilters<UserSession>(modelBuilder);     
         }
     }
 }
