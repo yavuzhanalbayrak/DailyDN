@@ -1,6 +1,6 @@
 namespace DailyDN.Application.Features.Auth.VerifyOtp
 {
-    public class VerifyOtpQueryResponse
+    public class VerifyOtpCommandResponse
     {
         public string Token { get; set; } = string.Empty;
         public DateTime Expiration { get; set; }

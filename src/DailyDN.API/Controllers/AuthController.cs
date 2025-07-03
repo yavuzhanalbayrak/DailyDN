@@ -39,7 +39,7 @@ namespace DailyDN.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Result))]
         [HttpPost("otp/verify")]
         [MapToApiVersion("1.0")]
-        public async Task<IActionResult> VerifyOtp([FromBody] VerifyOtpQuery command)
+        public async Task<IActionResult> VerifyOtp([FromBody] VerifyOtpCommand command)
         {
             var result = await _mediator.Send(command);
             return result.IsSuccess ? Ok(result) : BadRequest(result);

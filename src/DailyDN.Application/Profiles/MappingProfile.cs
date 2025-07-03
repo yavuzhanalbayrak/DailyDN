@@ -8,7 +8,7 @@ namespace DailyDN.Application.Profiles
     {
         public MappingProfile()
         {
-            CreateMap<TokenResponse, VerifyOtpQueryResponse>();
+            CreateMap<TokenResponse, VerifyOtpCommandResponse>();
         }
     }
 }

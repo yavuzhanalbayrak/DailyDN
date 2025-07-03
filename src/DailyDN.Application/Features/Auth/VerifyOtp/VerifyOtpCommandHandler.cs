@@ -9,17 +9,17 @@ using Microsoft.AspNetCore.Http;
 
 namespace DailyDN.Application.Features.Auth.VerifyOtp
 {
-    public class VerifyOtpQueryHandler(
+    public class VerifyOtpCommandHandler(
         IGenericRepository<User> userRepository,
         ITokenService tokenService,
         IHttpContextAccessor httpContextAccessor,
         IMapper mapper
-    ) : IQueryHandler<VerifyOtpQuery, VerifyOtpQueryResponse>
+    ) : ICommandHandler<VerifyOtpCommand>
     {
-        public async Task<Result<VerifyOtpQueryResponse>> Handle(VerifyOtpQuery request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(VerifyOtpCommand request, CancellationToken cancellationToken)
         {
             var ipAddress = httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString() ?? "";
-            var userAgent = httpContextAccessor.HttpContext?.Request.Headers["User-Agent"].ToString() ?? "";
+            var userAgent = httpContextAccessor.HttpContext?.Request.Headers.UserAgent.ToString() ?? "";
 
             var userList = await userRepository.GetAsync(u => u.Guid == request.Guid);
             var user = userList[0];
@@ -27,7 +27,7 @@ namespace DailyDN.Application.Features.Auth.VerifyOtp
             if (user.IsOtpValid(user.OtpCode, TimeSpan.FromMinutes(1)))
             {
                 var tokenResponse = await tokenService.GenerateTokens(user.Id, ipAddress, userAgent);
-                var response = mapper.Map<VerifyOtpQueryResponse>(tokenResponse);
+                var response = mapper.Map<VerifyOtpCommandResponse>(tokenResponse);
 
                 user.IsGuidUsed = true;
                 await userRepository.UpdateAsync(user);
@@ -35,7 +35,7 @@ namespace DailyDN.Application.Features.Auth.VerifyOtp
                 return Result.Success(response);
             }
             else
-                return Result.Failure<VerifyOtpQueryResponse>(new Error("Otp.Invalid", "OTP is invalid or has expired."));
+                return Result.Failure<VerifyOtpCommandResponse>(new Error("Otp.Invalid", "OTP is invalid or has expired."));
         }
     }
 }
