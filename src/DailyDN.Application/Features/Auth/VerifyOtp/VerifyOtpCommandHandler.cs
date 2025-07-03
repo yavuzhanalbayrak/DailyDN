@@ -29,7 +29,7 @@ namespace DailyDN.Application.Features.Auth.VerifyOtp
                 var tokenResponse = await tokenService.GenerateTokens(user.Id, ipAddress, userAgent);
                 var response = mapper.Map<VerifyOtpCommandResponse>(tokenResponse);
 
-                user.IsGuidUsed = true;
+                user.Login();
                 await userRepository.UpdateAsync(user);
 
                 return Result.Success(response);

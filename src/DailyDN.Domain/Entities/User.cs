@@ -74,6 +74,12 @@ namespace DailyDN.Domain.Entities
             AvatarUrl = avatarUrl;
         }
 
+        public void Login()
+        {
+            IsGuidUsed = true;
+            LastLoginAt = DateTime.UtcNow;
+        }
+
         public IEnumerable<Claim> GetClaims()
         {
             return UserRoles
