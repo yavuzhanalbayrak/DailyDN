@@ -17,16 +17,34 @@ namespace DailyDN.Infrastructure.Contexts
         {
             base.OnModelCreating(modelBuilder);
 
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes()
+            .Where(t => t.ClrType.BaseType == typeof(Entity)))
+            {
+                var builder = modelBuilder.Entity(entityType.ClrType);
+
+                builder.Property(nameof(Entity.CreatedAt))
+                    .HasDefaultValueSql("GETDATE()");
+
+                builder.Property(nameof(Entity.CreatedBy))
+                    .HasDefaultValueSql("0");
+
+                builder.Property(nameof(Entity.UpdatedAt))
+                    .HasDefaultValue(null);
+
+                builder.Property(nameof(Entity.IsDeleted))
+                    .HasDefaultValue(false);
+            }
+
             modelBuilder.ApplyConfigurationsFromAssembly(InfrastructureAssembly.Instance);
 
             modelBuilder.SeedUsers();
 
-            ApplyGlobalFilters<User>(modelBuilder);    
-            ApplyGlobalFilters<Claim>(modelBuilder);    
-            ApplyGlobalFilters<Role>(modelBuilder);    
-            ApplyGlobalFilters<UserRole>(modelBuilder);    
-            ApplyGlobalFilters<RoleClaim>(modelBuilder);     
-            ApplyGlobalFilters<UserSession>(modelBuilder);     
+            ApplyGlobalFilters<User>(modelBuilder);
+            ApplyGlobalFilters<Claim>(modelBuilder);
+            ApplyGlobalFilters<Role>(modelBuilder);
+            ApplyGlobalFilters<UserRole>(modelBuilder);
+            ApplyGlobalFilters<RoleClaim>(modelBuilder);
+            ApplyGlobalFilters<UserSession>(modelBuilder);
         }
     }
 }

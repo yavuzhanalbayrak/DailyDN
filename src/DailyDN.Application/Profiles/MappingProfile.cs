@@ -1,4 +1,6 @@
 using AutoMapper;
+using DailyDN.Application.Features.Auth.VerifyOtp;
+using DailyDN.Infrastructure.Models;
 
 namespace DailyDN.Application.Profiles
 {
@@ -6,7 +8,7 @@ namespace DailyDN.Application.Profiles
     {
         public MappingProfile()
         {
-        
+            CreateMap<TokenResponse, VerifyOtpQueryResponse>();
         }
     }
 }

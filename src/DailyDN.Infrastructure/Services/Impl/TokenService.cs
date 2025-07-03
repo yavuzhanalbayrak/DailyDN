@@ -42,7 +42,7 @@ namespace DailyDN.Infrastructure.Services.Impl
             }
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
-            var credential = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
+            var credential = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var expiration = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiresInMinutes);
 
             var tokenDescriptor = new SecurityTokenDescriptor
@@ -60,7 +60,6 @@ namespace DailyDN.Infrastructure.Services.Impl
             return new TokenResponse
             {
                 Token = jwt,
-                UserId = user.Id,
                 Expiration = expiration,
             };
         }

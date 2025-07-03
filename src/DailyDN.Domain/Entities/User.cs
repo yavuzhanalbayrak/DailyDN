@@ -37,12 +37,14 @@ namespace DailyDN.Domain.Entities
             OtpCode = code;
             Guid = guid;
             OtpGeneratedAt = DateTime.UtcNow;
+            IsGuidUsed = false;
         }
 
-        public bool IsOtpValid(string inputOtp, TimeSpan validFor)
+        public bool IsOtpValid(string? inputOtp, TimeSpan validFor)
         {
             return OtpCode == inputOtp &&
                    OtpGeneratedAt.HasValue &&
+                   !IsGuidUsed &&
                    OtpGeneratedAt.Value.Add(validFor) > DateTime.UtcNow;
         }
 
