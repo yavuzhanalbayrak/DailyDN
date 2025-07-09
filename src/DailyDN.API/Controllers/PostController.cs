@@ -1,3 +1,4 @@
+using DailyDN.Application.Common.Attributes;
 using DailyDN.Application.Common.Model;
 using DailyDN.Application.Features.Post.Add;
 using DailyDN.Application.Features.Post.GetList;
@@ -18,6 +19,7 @@ namespace DailyDN.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Result<GetListQueryResponse>))]
         [HttpGet]
         [MapToApiVersion("1.0")]
+        [Authorized("PostGet")]
         public async Task<IActionResult> GetList([FromQuery] GetListQuery query)
         {
             var result = await _mediator.Send(query);
@@ -29,6 +31,7 @@ namespace DailyDN.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Result))]
         [HttpPost]
         [MapToApiVersion("1.0")]
+        [Authorized("PostAdd")]
         public async Task<IActionResult> Add([FromBody] AddCommand command)
         {
             var result = await _mediator.Send(command);

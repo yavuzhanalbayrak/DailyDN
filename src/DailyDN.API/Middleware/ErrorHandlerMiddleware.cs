@@ -4,7 +4,6 @@ using DailyDN.Application.Exceptions;
 using DailyDN.Application.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using System.Text.Json;
 using ValidationException = FluentValidation.ValidationException;
 
 namespace DailyDN.API.Middleware
@@ -29,6 +28,9 @@ namespace DailyDN.API.Middleware
             {
                 case ValidationException validationException:
                     await HandleValidationException(validationException, context);
+                    break;
+                case ApiAuthenticationException authenticationException:
+                    await HandleAuthenticationException(authenticationException, context, logger);
                     break;
                 case AuthorizationException authEx:
                     await HandleAuthorizationException(authEx, context);
@@ -84,6 +86,15 @@ namespace DailyDN.API.Middleware
                 StatusCode = context.Response.StatusCode,
                 Message = "An unexpected error occurred. Please contact support."
             }.ToString());
+        }
+
+        private static async Task HandleAuthenticationException(ApiAuthenticationException ex, HttpContext context, ILogger<ErrorHandlerMiddleware> logger)
+        {
+            context.Response.StatusCode = ex.StatusCode;
+
+            logger.LogError(ex, "Authentication Error: Code {FailCode} - {Message} - Path:{Path}", ex.FailCode, ex.Message, context.Request.Path);
+
+            await context.Response.WriteAsJsonAsync(Result.Failure(new Error(ex.FailCode.ToString(), ex.Message)));
         }
     }
 }
