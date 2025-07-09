@@ -1,5 +1,6 @@
 using DailyDN.API.Middleware.Model;
 using DailyDN.Application.Common.Model;
+using DailyDN.Application.Exceptions;
 using DailyDN.Application.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
@@ -29,9 +30,9 @@ namespace DailyDN.API.Middleware
                 case ValidationException validationException:
                     await HandleValidationException(validationException, context);
                     break;
-                // case AuthorizationException authEx:
-                //     await HandleAuthorizationException(authEx, context);
-                //     break;
+                case AuthorizationException authEx:
+                    await HandleAuthorizationException(authEx, context);
+                    break;
                 default:
                     await HandleGenericException(ex, context, logger);
                     break;
@@ -62,15 +63,15 @@ namespace DailyDN.API.Middleware
 
 
 
-        // private static async Task HandleAuthorizationException(AuthorizationException ex, HttpContext context)
-        // {
-        //     context.Response.StatusCode = ex.StatusCode;
+        private static async Task HandleAuthorizationException(AuthorizationException ex, HttpContext context)
+        {
+            context.Response.StatusCode = ex.StatusCode;
 
-        //     await context.Response.WriteAsJsonAsync(Result.Failure(new Error(
-        //         ex.Code,
-        //         ex.Message
-        //     )));
-        // }
+            await context.Response.WriteAsJsonAsync(Result.Failure(new Error(
+                ex.Code,
+                ex.Message
+            )));
+        }
 
 
         private static async Task HandleGenericException(Exception ex, HttpContext context, ILogger<ErrorHandlerMiddleware> logger)
