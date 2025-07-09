@@ -38,6 +38,9 @@ namespace DailyDN.Infrastructure.Contexts
             modelBuilder.ApplyConfigurationsFromAssembly(InfrastructureAssembly.Instance);
 
             modelBuilder.SeedUsers();
+            modelBuilder.SeedClaims();
+            modelBuilder.SeedRoleClaims();
+            modelBuilder.SeedRoles();
 
             ApplyGlobalFilters<User>(modelBuilder);
             ApplyGlobalFilters<Claim>(modelBuilder);
