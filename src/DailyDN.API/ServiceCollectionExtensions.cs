@@ -72,8 +72,7 @@ namespace DailyDN.API
                     });
 
             services.AddAuthorization();
-
-
+            services.AddScoped<AuthenticatedUserMiddleware>();
 
             return services;
         }

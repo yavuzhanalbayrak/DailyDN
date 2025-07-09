@@ -33,6 +33,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseMiddleware<ErrorHandlerMiddleware>();
+app.UseMiddleware<AuthenticatedUserMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
