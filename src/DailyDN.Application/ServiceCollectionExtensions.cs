@@ -4,8 +4,8 @@ using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using DailyDN.Application.Profiles;
 using FluentValidation;
-using DailyDN.Application.Services;
-using DailyDN.Application.Services.Impl;
+using DailyDN.Infrastructure.Services;
+using DailyDN.Infrastructure.Services.Impl;
 using Microsoft.AspNetCore.Identity;
 
 namespace DailyDN.Application

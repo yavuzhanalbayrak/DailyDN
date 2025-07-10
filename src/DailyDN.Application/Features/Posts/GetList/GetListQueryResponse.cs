@@ -1,6 +1,6 @@
-using DailyDN.Application.Features.Post.GetList.Response;
+using DailyDN.Application.Features.Posts.GetList.Response;
 
-namespace DailyDN.Application.Features.Post.GetList
+namespace DailyDN.Application.Features.Posts.GetList
 {
     public class GetListQueryResponse
     {

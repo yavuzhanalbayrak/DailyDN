@@ -1,11 +1,12 @@
 using DailyDN.Domain.Entities;
 using DailyDN.Infrastructure.Seed;
+using DailyDN.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace DailyDN.Infrastructure.Contexts
 {
-    public class DailyDNDbContext(DbContextOptions<DailyDNDbContext> options, ILogger<DailyDNDbContext> logger, int currentUser = 0) : ApplicationContext(options, logger, currentUser)
+    public class DailyDNDbContext(DbContextOptions<DailyDNDbContext> options, ILogger<DailyDNDbContext> logger, IAuthenticatedUser currentUser) : ApplicationContext(options, logger, currentUser)
     {
         public DbSet<User> Users { get; set; }
         public DbSet<Claim> Claims { get; set; }
@@ -48,6 +49,7 @@ namespace DailyDN.Infrastructure.Contexts
             ApplyGlobalFilters<UserRole>(modelBuilder);
             ApplyGlobalFilters<RoleClaim>(modelBuilder);
             ApplyGlobalFilters<UserSession>(modelBuilder);
+            ApplyGlobalFilters<Post>(modelBuilder);
         }
     }
 }

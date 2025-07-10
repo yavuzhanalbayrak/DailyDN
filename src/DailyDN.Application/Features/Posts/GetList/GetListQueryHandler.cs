@@ -1,7 +1,7 @@
 using DailyDN.Application.Common.Model;
 using DailyDN.Application.Messaging;
 
-namespace DailyDN.Application.Features.Post.GetList
+namespace DailyDN.Application.Features.Posts.GetList
 {
     public class GetListQueryHandler : IQueryHandler<GetListQuery, GetListQueryResponse>
     {

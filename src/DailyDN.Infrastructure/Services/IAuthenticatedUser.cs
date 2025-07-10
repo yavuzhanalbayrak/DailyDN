@@ -1,4 +1,4 @@
-namespace DailyDN.Application.Services
+namespace DailyDN.Infrastructure.Services
 {
     public interface IAuthenticatedUser
     {

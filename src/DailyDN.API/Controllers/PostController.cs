@@ -1,7 +1,7 @@
 using DailyDN.Application.Common.Attributes;
 using DailyDN.Application.Common.Model;
-using DailyDN.Application.Features.Post.Add;
-using DailyDN.Application.Features.Post.GetList;
+using DailyDN.Application.Features.Posts.Add;
+using DailyDN.Application.Features.Posts.GetList;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -32,7 +32,7 @@ namespace DailyDN.API.Controllers
         [HttpPost]
         [MapToApiVersion("1.0")]
         [Authorized("PostAdd")]
-        public async Task<IActionResult> Add([FromBody] AddCommand command)
+        public async Task<IActionResult> Add([FromBody] AddPostCommand command)
         {
             var result = await _mediator.Send(command);
             return result.IsSuccess ? Ok(result) : BadRequest(result);

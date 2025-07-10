@@ -1,6 +1,6 @@
 using DailyDN.Domain.Entities;
 
-namespace DailyDN.Application.Services.Impl
+namespace DailyDN.Infrastructure.Services.Impl
 {
     public class AuthenticatedUser : IAuthenticatedUser
     {

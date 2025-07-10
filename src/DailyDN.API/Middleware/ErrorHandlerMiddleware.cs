@@ -1,7 +1,7 @@
 using DailyDN.API.Middleware.Model;
 using DailyDN.Application.Common.Model;
 using DailyDN.Application.Exceptions;
-using DailyDN.Application.Services;
+using DailyDN.Infrastructure.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using ValidationException = FluentValidation.ValidationException;

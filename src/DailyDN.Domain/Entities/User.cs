@@ -19,6 +19,7 @@ namespace DailyDN.Domain.Entities
 
         public ICollection<UserRole> UserRoles { get; private set; } = [];
         public ICollection<UserSession> UserSessions { get; private set; } = [];
+        public ICollection<Post> Posts { get; private set; } = [];
 
         private User() { }
 
