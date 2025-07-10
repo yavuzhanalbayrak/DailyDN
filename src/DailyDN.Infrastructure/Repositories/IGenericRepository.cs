@@ -18,6 +18,8 @@ namespace DailyDN.Infrastructure.Repositories
             int pageSize,
             Func<IQueryable<T>, IQueryable<T>> includes,
             Expression<Func<T, bool>> predicate = null,
+            Expression<Func<T, object>> orderBy = null,
+            bool orderDescending = true,
             bool disableTracking = true
         );
         Task<IReadOnlyList<T>> GetAsync(Expression<Func<T, bool>> predicate);

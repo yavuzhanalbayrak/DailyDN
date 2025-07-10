@@ -15,12 +15,12 @@ namespace DailyDN.API.Controllers
     public class PostController(IMediator _mediator) : ControllerBase
     {
         [Produces("application/json", "text/plain")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Result<GetListQueryResponse>))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Result<GetListQueryResponse>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Result<GetPostListQueryResponse>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Result<GetPostListQueryResponse>))]
         [HttpGet]
         [MapToApiVersion("1.0")]
         [Authorized("PostGet")]
-        public async Task<IActionResult> GetList([FromQuery] GetListQuery query)
+        public async Task<IActionResult> GetList([FromQuery] GetPostListQuery query)
         {
             var result = await _mediator.Send(query);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
