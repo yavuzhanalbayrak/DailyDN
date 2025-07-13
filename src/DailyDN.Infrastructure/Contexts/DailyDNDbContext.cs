@@ -50,6 +50,9 @@ namespace DailyDN.Infrastructure.Contexts
             ApplyGlobalFilters<RoleClaim>(modelBuilder);
             ApplyGlobalFilters<UserSession>(modelBuilder);
             ApplyGlobalFilters<Post>(modelBuilder);
+            ApplyGlobalFilters<Chat>(modelBuilder);
+            ApplyGlobalFilters<ChatMessage>(modelBuilder);
+            ApplyGlobalFilters<UserChat>(modelBuilder);
         }
     }
 }
