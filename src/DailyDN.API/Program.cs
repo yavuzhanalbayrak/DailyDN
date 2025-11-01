@@ -32,6 +32,7 @@ var app = builder.Build();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseMiddleware<ErrorHandlerMiddleware>();
 app.UseMiddleware<AuthenticatedUserMiddleware>();
 

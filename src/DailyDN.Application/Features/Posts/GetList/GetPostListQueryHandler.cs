@@ -1,28 +1,24 @@
 using AutoMapper;
 using DailyDN.Application.Common.Model;
-using DailyDN.Application.Features.Posts.GetList.Response;
 using DailyDN.Application.Messaging;
-using DailyDN.Domain.Entities;
-using DailyDN.Infrastructure.Repositories;
-using Microsoft.EntityFrameworkCore;
+using DailyDN.Application.Services.Interfaces;
+using DailyDN.Infrastructure.Services;
+using Microsoft.Extensions.Logging;
 
 namespace DailyDN.Application.Features.Posts.GetList
 {
-    public class GetPostListQueryHandler(IGenericRepository<Post> postRepository, IMapper mapper) : IPaginatedQueryHandler<GetPostListQuery, GetPostListQueryResponse>
+    public class GetPostListQueryHandler(
+        IPostsService postsService,
+        IMapper mapper,
+        ILogger<GetPostListQueryHandler> logger,
+        IAuthenticatedUser authenticatedUser
+    ) : IPaginatedQueryHandler<GetPostListQuery, GetPostListQueryResponse>
     {
         public async Task<PaginatedResult<GetPostListQueryResponse>> Handle(GetPostListQuery request, CancellationToken cancellationToken)
         {
-            var includes = new Func<IQueryable<Post>, IQueryable<Post>>(query =>
-                query.Include(p => p.User)
-            );
-            
-            var (posts, totalCount) = await postRepository.GetPaginatedAsync(
-                request.Page,
-                request.PageSize,
-                includes,
-                orderBy: p => p.CreatedAt,
-                orderDescending: true
-            );
+            logger.LogInformation("Getting Posts by user: {@User}. Payload: {@Request}", authenticatedUser, request);
+
+            var (posts, totalCount) = await postsService.GetListAsync(request.Page, request.PageSize);
 
             var postResponses = mapper.Map<GetPostListQueryResponse>(posts);
 
