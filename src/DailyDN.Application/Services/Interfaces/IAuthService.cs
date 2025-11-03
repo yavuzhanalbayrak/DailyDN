@@ -4,7 +4,7 @@ namespace DailyDN.Application.Services.Interfaces;
 
 public interface IAuthService
 {
-    public Task LoginAsync();
+    public Task<Result> LoginAsync(string Email, string Password);
     public Task<Result> RegisterAsync(
         string Name,
         string Surname,

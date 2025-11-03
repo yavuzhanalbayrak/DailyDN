@@ -11,9 +11,34 @@ namespace DailyDN.Application.Services.Implementations
         IPasswordHasher<User> passwordHasher
     ) : IAuthService
     {
-        public Task LoginAsync()
+        public async Task<Result> LoginAsync(string Email, string Password)
         {
-            throw new NotImplementedException();
+            var user = await userRepository.GetAsync(u => u.Email == Email);
+            if (!user.Any())
+            {
+                return Result.Failure(new Error("Unauthorized", "Email or password is incorrect."));
+            }
+
+            var userEntity = user[0];
+            var passwordVerificationResult = passwordHasher.VerifyHashedPassword(userEntity, userEntity.PasswordHash, Password);
+
+            if (passwordVerificationResult != PasswordVerificationResult.Success)
+            {
+                return Result.Failure(new Error("Unauthorized", "Email or password is incorrect."));
+            }
+
+            var otp = Random.Shared.Next(100000, 999999);
+            var guid = Guid.NewGuid();
+
+            userEntity.SetOtp(otp.ToString(), guid);
+
+            await userRepository.UpdateAsync(userEntity);
+
+            return Result.Success(new
+            {
+                Guid = guid.ToString(),
+                Otp = otp // Sms servis yok, response içinde dönülüyor
+            });
         }
 
         public async Task<Result> RegisterAsync(
