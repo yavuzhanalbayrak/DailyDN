@@ -1,4 +1,5 @@
 using DailyDN.Application.Common.Model;
+using DailyDN.Infrastructure.Models;
 
 namespace DailyDN.Application.Services.Interfaces;
 
@@ -12,5 +13,5 @@ public interface IAuthService
         string Password,
         CancellationToken cancellationToken
     );
-    public Task VerifyOtpAsync();
+    public Task<TokenResponse?> VerifyOtpAsync(Guid Guid, string Otp);
 }

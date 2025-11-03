@@ -1,14 +1,19 @@
 using DailyDN.Application.Common.Model;
 using DailyDN.Application.Services.Interfaces;
 using DailyDN.Domain.Entities;
+using DailyDN.Infrastructure.Models;
 using DailyDN.Infrastructure.Repositories;
+using DailyDN.Infrastructure.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 
 namespace DailyDN.Application.Services.Implementations
 {
     public class AuthService(
         IGenericRepository<User> userRepository,
-        IPasswordHasher<User> passwordHasher
+        IPasswordHasher<User> passwordHasher,
+        IHttpContextAccessor httpContextAccessor,
+        ITokenService tokenService
     ) : IAuthService
     {
         public async Task<Result> LoginAsync(string Email, string Password)
@@ -72,9 +77,26 @@ namespace DailyDN.Application.Services.Implementations
             return Result.SuccessWithMessage("Registration completed successfully.");
         }
 
-        public Task VerifyOtpAsync()
+        public async Task<TokenResponse?> VerifyOtpAsync(Guid Guid, string Otp)
         {
-            throw new NotImplementedException();
+            var ipAddress = httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString() ?? "";
+            var userAgent = httpContextAccessor.HttpContext?.Request.Headers.UserAgent.ToString() ?? "";
+
+            var userList = await userRepository.GetAsync(u => u.Guid == Guid);
+            var user = userList[0];
+
+            if (user.IsOtpValid(Otp, TimeSpan.FromMinutes(1)))
+            {
+                var tokenResponse = await tokenService.GenerateTokens(user.Id, ipAddress, userAgent);
+
+                user.Login();
+                await userRepository.UpdateAsync(user);
+
+                return tokenResponse;
+            }
+            else
+                return null;
+
         }
     }
 }
