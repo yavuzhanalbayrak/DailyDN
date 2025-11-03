@@ -27,6 +27,7 @@ namespace DailyDN.Application
             services.AddValidatorsFromAssembly(ApplicationAssembly.Instance);
             services.AddScoped<IAuthenticatedUser, AuthenticatedUser>();
             services.AddScoped<IPostsService, PostsService>();
+            services.AddScoped<IAuthService, AuthService>();
             services.AddScoped(typeof(IPasswordHasher<>), typeof(PasswordHasher<>));
             services.AddHttpContextAccessor();
             
