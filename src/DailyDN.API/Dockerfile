@@ -1,23 +1,21 @@
 # ---------- Build Stage ----------
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
-WORKDIR /app
+WORKDIR /src
 
-# Tüm projeleri kopyala
-COPY ../.. .
+# Tüm src klasörünü kopyala
+COPY . .
 
-# API projesini restore et
-WORKDIR /app/src/DailyDN.API
-RUN dotnet restore
+# Restore işlemi API projesi üzerinden
+WORKDIR /src/DailyDN.API
+RUN dotnet restore "DailyDN.API.csproj"
 
-# Build
-RUN dotnet publish -c Release -o /app/out
+# Build ve publish
+RUN dotnet publish "DailyDN.API.csproj" -c Release -o /app/publish
 
 # ---------- Runtime Stage ----------
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
 WORKDIR /app
-COPY --from=build /app/out .
+COPY --from=build /app/publish .
 
-# Uygulama 8080 portunu dinlesin
 EXPOSE 8080
-
 ENTRYPOINT ["dotnet", "DailyDN.API.dll"]

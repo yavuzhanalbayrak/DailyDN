@@ -14,11 +14,11 @@ services:
 
   dailydn.api:
     build:
-      context: ./src/DailyDN.API
-      dockerfile: Dockerfile
+      context: ./src
+      dockerfile: DailyDN.API/Dockerfile
     container_name: dailydn.api
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=Prod
       - ConnectionStrings__DefaultConnection=Server=mssql,1433;Database=DailyDNDB;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;
     depends_on:
       - mssql
@@ -38,7 +38,9 @@ services:
     environment:
       - discovery.type=single-node
       - plugins.security.disabled=true
-      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
+      - bootstrap.memory_lock=true
+      - OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_INITIAL_ADMIN_PASSWORD}
     ulimits:
       memlock:
         soft: -1
@@ -46,8 +48,13 @@ services:
     volumes:
       - os_data:/usr/share/opensearch/data
     ports:
-      - "9200:9200"   # OpenSearch REST API
-      - "9600:9600"   # Performance Analyzer
+      - "9200:9200"
+      - "9600:9600"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   graylog:
     image: graylog/graylog:6.0
@@ -65,9 +72,9 @@ services:
       - opensearch
     restart: unless-stopped
     ports:
-      - "9000:9000"    # Web UI
-      - "12201:12201/udp"  # GELF UDP input
-      - "12201:12201/tcp"  # GELF TCP input
+      - "9000:9000" # Web UI
+      - "12201:12201/udp" # GELF UDP input
+      - "12201:12201/tcp" # GELF TCP input
     volumes:
       - graylog_data:/usr/share/graylog/data
 
