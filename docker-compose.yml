@@ -18,7 +18,7 @@ services:
       dockerfile: DailyDN.API/Dockerfile
     container_name: dailydn.api
     environment:
-      - ASPNETCORE_ENVIRONMENT=Prod
+      - ASPNETCORE_ENVIRONMENT=Test
       - ConnectionStrings__DefaultConnection=Server=mssql,1433;Database=DailyDNDB;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;
       - Redis__ConnectionString=redis:6379
       - MongoSettings__ConnectionString=mongodb://mongo:27017
