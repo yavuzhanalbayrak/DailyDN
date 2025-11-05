@@ -54,6 +54,8 @@ namespace DailyDN.Infrastructure.Repositories
             int pageSize,
             Func<IQueryable<T>, IQueryable<T>> includes,
             Expression<Func<T, bool>> predicate = null,
+            Expression<Func<T, object>> orderBy = null,
+            bool orderDescending = true,
             bool disableTracking = true
         )
         {
@@ -72,6 +74,15 @@ namespace DailyDN.Infrastructure.Repositories
 
             var totalCount = await query.CountAsync();
 
+            if (orderBy != null)
+            {
+                query = orderDescending
+                    ? query.OrderByDescending(orderBy)
+                    : query.OrderBy(orderBy);
+            }
+            else
+                query = query.OrderByDescending(e => e.CreatedAt);
+            
             var items = await query
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)

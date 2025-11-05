@@ -1,9 +1,9 @@
 using DailyDN.API.Middleware.Model;
 using DailyDN.Application.Common.Model;
-using DailyDN.Application.Services;
+using DailyDN.Application.Exceptions;
+using DailyDN.Infrastructure.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using System.Text.Json;
 using ValidationException = FluentValidation.ValidationException;
 
 namespace DailyDN.API.Middleware
@@ -29,9 +29,12 @@ namespace DailyDN.API.Middleware
                 case ValidationException validationException:
                     await HandleValidationException(validationException, context);
                     break;
-                // case AuthorizationException authEx:
-                //     await HandleAuthorizationException(authEx, context);
-                //     break;
+                case ApiAuthenticationException authenticationException:
+                    await HandleAuthenticationException(authenticationException, context, logger);
+                    break;
+                case AuthorizationException authEx:
+                    await HandleAuthorizationException(authEx, context);
+                    break;
                 default:
                     await HandleGenericException(ex, context, logger);
                     break;
@@ -62,15 +65,15 @@ namespace DailyDN.API.Middleware
 
 
 
-        // private static async Task HandleAuthorizationException(AuthorizationException ex, HttpContext context)
-        // {
-        //     context.Response.StatusCode = ex.StatusCode;
+        private static async Task HandleAuthorizationException(AuthorizationException ex, HttpContext context)
+        {
+            context.Response.StatusCode = ex.StatusCode;
 
-        //     await context.Response.WriteAsJsonAsync(Result.Failure(new Error(
-        //         ex.Code,
-        //         ex.Message
-        //     )));
-        // }
+            await context.Response.WriteAsJsonAsync(Result.Failure(new Error(
+                ex.Code,
+                ex.Message
+            )));
+        }
 
 
         private static async Task HandleGenericException(Exception ex, HttpContext context, ILogger<ErrorHandlerMiddleware> logger)
@@ -83,6 +86,15 @@ namespace DailyDN.API.Middleware
                 StatusCode = context.Response.StatusCode,
                 Message = "An unexpected error occurred. Please contact support."
             }.ToString());
+        }
+
+        private static async Task HandleAuthenticationException(ApiAuthenticationException ex, HttpContext context, ILogger<ErrorHandlerMiddleware> logger)
+        {
+            context.Response.StatusCode = ex.StatusCode;
+
+            logger.LogError(ex, "Authentication Error: Code {FailCode} - {Message} - Path:{Path}", ex.FailCode, ex.Message, context.Request.Path);
+
+            await context.Response.WriteAsJsonAsync(Result.Failure(new Error(ex.FailCode.ToString(), ex.Message)));
         }
     }
 }

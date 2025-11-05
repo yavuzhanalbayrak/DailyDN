@@ -1,14 +1,15 @@
 using DailyDN.Domain.Entities;
+using DailyDN.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace DailyDN.Infrastructure.Contexts
 {
-    public abstract class ApplicationContext(DbContextOptions options, ILogger<DailyDNDbContext> logger, int currentUser = 0) : DbContext(options), IApplicationContext
+    public abstract class ApplicationContext(DbContextOptions options, ILogger<DailyDNDbContext> logger, IAuthenticatedUser currentUser) : DbContext(options), IApplicationContext
     {
         private readonly ILogger<DailyDNDbContext> _logger = logger;
         // Authenticated user
-        private readonly int _currentUser = currentUser;
+        private readonly int _currentUser = currentUser.UserId;
 
         public override int SaveChanges()
         {

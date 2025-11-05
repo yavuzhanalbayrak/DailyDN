@@ -29,7 +29,12 @@ builder.Host.UseSerilog((context, services, configuration) =>
 
 var app = builder.Build();
 
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseMiddleware<ErrorHandlerMiddleware>();
+app.UseMiddleware<AuthenticatedUserMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
