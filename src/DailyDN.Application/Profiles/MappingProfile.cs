@@ -1,4 +1,5 @@
 using AutoMapper;
+using DailyDN.Application.Features.Auth.RefreshToken;
 using DailyDN.Application.Features.Auth.VerifyOtp;
 using DailyDN.Application.Features.Posts.Add;
 using DailyDN.Application.Features.Posts.GetList;
@@ -15,6 +16,7 @@ namespace DailyDN.Application.Profiles
             CreateMap<TokenResponse, VerifyOtpCommandResponse>();
             CreateMap<AddPostCommand, Post>();
             CreateMap<User, UserResponse>();
+            CreateMap<TokenResponse, RefreshTokenCommandResponse>();
 
             CreateMap<Post, PostResponse>()
                 .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User));

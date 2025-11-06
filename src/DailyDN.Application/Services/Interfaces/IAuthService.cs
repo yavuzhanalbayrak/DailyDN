@@ -14,4 +14,6 @@ public interface IAuthService
         CancellationToken cancellationToken
     );
     public Task<TokenResponse?> VerifyOtpAsync(Guid Guid, string Otp);
+
+    public Task<TokenResponse?> RefreshTokenAsync(string RefreshToken);
 }

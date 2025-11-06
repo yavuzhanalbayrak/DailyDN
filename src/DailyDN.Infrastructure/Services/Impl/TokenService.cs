@@ -57,11 +57,7 @@ namespace DailyDN.Infrastructure.Services.Impl
             var tokenHandler = new JwtSecurityTokenHandler();
             SecurityToken securityToken = tokenHandler.CreateToken(tokenDescriptor);
             string? jwt = tokenHandler.WriteToken(securityToken);
-            return new TokenResponse
-            {
-                Token = jwt,
-                Expiration = expiration,
-            };
+            return new TokenResponse(jwt, "", expiration, DateTime.Now);
         }
 
         private static string GenerateRefreshToken()
@@ -98,6 +94,7 @@ namespace DailyDN.Infrastructure.Services.Impl
             await context.SaveChangesAsync();
 
             token.RefreshToken = rawRefreshToken;
+            token.RefreshTokenExpiration = refreshTokenExpiry;
 
             return token;
         }

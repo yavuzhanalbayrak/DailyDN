@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using DailyDN.Application.Common.Model;
 using DailyDN.Application.Services.Interfaces;
 using DailyDN.Domain.Entities;
@@ -11,6 +13,7 @@ namespace DailyDN.Application.Services.Implementations
 {
     public class AuthService(
         IGenericRepository<User> userRepository,
+        IGenericRepository<UserSession> sessionRepository,
         IPasswordHasher<User> passwordHasher,
         IHttpContextAccessor httpContextAccessor,
         ITokenService tokenService
@@ -97,6 +100,26 @@ namespace DailyDN.Application.Services.Implementations
             else
                 return null;
 
+        }
+
+        public async Task<TokenResponse?> RefreshTokenAsync(string RefreshToken)
+        {
+            var requestRefreshTokenHash = Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(RefreshToken)));
+
+            var session = (await sessionRepository.GetAsync(us => us.RefreshToken == requestRefreshTokenHash))[0];
+            if (session is null || !session.IsActive())
+                throw new UnauthorizedAccessException("Invalid or expired refresh token.");
+
+            var newTokens = await tokenService.GenerateTokens(session.UserId, session.IpAddress, session.UserAgent);
+
+            var newAccessToken = newTokens.AccessToken;
+            var newRefreshTokenExpiry = newTokens.RefreshTokenExpiration;
+            var newRefreshToken = newTokens.RefreshToken;
+
+            session.Revoke();
+            await sessionRepository.UpdateAsync(session);
+
+            return new TokenResponse(newAccessToken, newRefreshToken, newRefreshTokenExpiry, DateTime.Now);
         }
     }
 }

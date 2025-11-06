@@ -16,7 +16,7 @@ namespace DailyDN.Domain.Entities
         }
 
         public int UserId { get; private set; }
-        public User? User { get; private set; }
+        public User? User { get; set; }
         public string RefreshToken { get; private set; } = string.Empty;
         public string IpAddress { get; private set; } = string.Empty;
         public string UserAgent { get; private set; } = string.Empty;
@@ -35,10 +35,9 @@ namespace DailyDN.Domain.Entities
             IsRevoked = true;
         }
 
-        public void Rotate(string newRefreshToken, DateTime newExpiry)
+        public UserSession Rotate(string newRefreshToken, DateTime newExpiry)
         {
-            RefreshToken = newRefreshToken;
-            ExpiresAt = newExpiry;
+            return new UserSession(this.UserId, newRefreshToken, this.IpAddress, this.UserAgent, newExpiry);
         }
     }
 }
