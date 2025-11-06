@@ -59,7 +59,7 @@ namespace DailyDN.API.Controllers
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenCommand command)
         {
             var result = await _mediator.Send(command);
-            return Ok(result);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
     }
 }

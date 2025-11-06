@@ -9,11 +9,17 @@ namespace DailyDN.Application.Features.Auth.RefreshToken
     {
         public async Task<Result<RefreshTokenCommandResponse>> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
         {
-            var tokenResponse = await authService.RefreshTokenAsync(request.RefreshToken);
-            var response = mapper.Map<RefreshTokenCommandResponse>(tokenResponse);
+            try
+            {
+                var tokenResponse = await authService.RefreshTokenAsync(request.RefreshToken);
+                var response = mapper.Map<RefreshTokenCommandResponse>(tokenResponse);
 
-            return Result.SuccessWithMessage(response, "Token refreshed successfully.");
-        
+                return Result.SuccessWithMessage(response, "Token refreshed successfully.");
+            }
+            catch (System.Exception)
+            {
+                return Result.Failure<RefreshTokenCommandResponse>(new Error("InvalidToken", "Invalid or expired refresh token."));
+            }
         }
     }
 }
