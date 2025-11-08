@@ -3,6 +3,7 @@ using System.Text;
 using DailyDN.API.Middleware;
 using DailyDN.Application;
 using DailyDN.Infrastructure.Contexts;
+using DailyDN.Infrastructure.Redis;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -73,6 +74,9 @@ namespace DailyDN.API
 
             services.AddAuthorization();
             services.AddScoped<AuthenticatedUserMiddleware>();
+
+            services.Configure<RedisSettings>(
+                configuration.GetSection("Redis"));
 
             return services;
         }
