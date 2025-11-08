@@ -19,16 +19,16 @@ namespace DailyDN.Application.Services.Implementations
         ITokenService tokenService
     ) : IAuthService
     {
-        public async Task<Result> LoginAsync(string Email, string Password)
+        public async Task<Result> LoginAsync(string email, string password)
         {
-            var user = await userRepository.GetAsync(u => u.Email == Email);
+            var user = await userRepository.GetAsync(u => u.Email == email);
             if (!user.Any())
             {
                 return Result.Failure(new Error("Unauthorized", "Email or password is incorrect."));
             }
 
             var userEntity = user[0];
-            var passwordVerificationResult = passwordHasher.VerifyHashedPassword(userEntity, userEntity.PasswordHash, Password);
+            var passwordVerificationResult = passwordHasher.VerifyHashedPassword(userEntity, userEntity.PasswordHash, password);
 
             if (passwordVerificationResult != PasswordVerificationResult.Success)
             {
@@ -50,25 +50,25 @@ namespace DailyDN.Application.Services.Implementations
         }
 
         public async Task<Result> RegisterAsync(
-            string Name,
-            string Surname,
-            string Email,
-            string Password,
+            string name,
+            string surname,
+            string email,
+            string password,
             CancellationToken cancellationToken
         )
         {
-            var exists = await userRepository.GetAsync(u => u.Email == Email);
+            var exists = await userRepository.GetAsync(u => u.Email == email);
             if (exists.Any())
             {
                 return Result.Failure(new Error("Conflict", "This email is already registered."));
             }
 
-            var hashedPassword = passwordHasher.HashPassword(null, Password);
+            var hashedPassword = passwordHasher.HashPassword(null, password);
 
             var user = new User(
-                name: Name,
-                surname: Surname,
-                email: Email,
+                name: name,
+                surname: surname,
+                email: email,
                 passwordHash: hashedPassword
             );
 
@@ -80,15 +80,15 @@ namespace DailyDN.Application.Services.Implementations
             return Result.SuccessWithMessage("Registration completed successfully.");
         }
 
-        public async Task<TokenResponse?> VerifyOtpAsync(Guid Guid, string Otp)
+        public async Task<TokenResponse?> VerifyOtpAsync(Guid guid, string otp)
         {
             var ipAddress = httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString() ?? "";
             var userAgent = httpContextAccessor.HttpContext?.Request.Headers.UserAgent.ToString() ?? "";
 
-            var userList = await userRepository.GetAsync(u => u.Guid == Guid);
+            var userList = await userRepository.GetAsync(u => u.Guid == guid);
             var user = userList[0];
 
-            if (user.IsOtpValid(Otp, TimeSpan.FromMinutes(1)))
+            if (user.IsOtpValid(otp, TimeSpan.FromMinutes(1)))
             {
                 var tokenResponse = await tokenService.GenerateTokens(user.Id, ipAddress, userAgent);
 
@@ -102,9 +102,9 @@ namespace DailyDN.Application.Services.Implementations
 
         }
 
-        public async Task<TokenResponse?> RefreshTokenAsync(string RefreshToken)
+        public async Task<TokenResponse?> RefreshTokenAsync(string refreshToken)
         {
-            var requestRefreshTokenHash = Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(RefreshToken)));
+            var requestRefreshTokenHash = Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(refreshToken)));
 
             var session = (await sessionRepository.GetAsync(us => us.RefreshToken == requestRefreshTokenHash))[0];
             if (session is null || !session.IsActive())
@@ -120,6 +120,32 @@ namespace DailyDN.Application.Services.Implementations
             await sessionRepository.UpdateAsync(session);
 
             return new TokenResponse(newAccessToken, newRefreshToken, newRefreshTokenExpiry, DateTime.Now);
+        }
+
+        public async Task ForgotPasswordAsync(string email)
+        {
+            var user = (await userRepository.GetAsync(u => u.Email == email)).FirstOrDefault();
+            if (user is null)
+                return;
+
+            user.GeneratePasswordResetToken();
+            await userRepository.UpdateAsync(user);
+
+            // var resetLink = $"https://frontend-app/reset-password?token={user.Guid}";
+            // await emailService.SendPasswordResetEmailAsync(user.Email, resetLink);
+        }
+
+        public async Task<Result> ResetPasswordAsync(Guid token, string newPassword)
+        {
+            var user = (await userRepository.GetAsync(u => u.ForgotPasswordToken == token)).FirstOrDefault();
+            if (user is null || !user.IsPasswordResetTokenValid(token, TimeSpan.FromMinutes(15)))
+                return Result.Failure(new Error("Token.Invalid", "Token is invalid or has expired."));
+
+            var hashedPassword = passwordHasher.HashPassword(null, newPassword);
+            user.ResetPassword(hashedPassword);
+
+            await userRepository.UpdateAsync(user);
+            return Result.SuccessWithMessage("Password reset successfully.");
         }
     }
 }

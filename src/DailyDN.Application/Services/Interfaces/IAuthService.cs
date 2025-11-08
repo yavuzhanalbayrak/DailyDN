@@ -5,15 +5,17 @@ namespace DailyDN.Application.Services.Interfaces;
 
 public interface IAuthService
 {
-    public Task<Result> LoginAsync(string Email, string Password);
+    public Task<Result> LoginAsync(string email, string password);
     public Task<Result> RegisterAsync(
-        string Name,
-        string Surname,
-        string Email,
-        string Password,
+        string name,
+        string surname,
+        string email,
+        string password,
         CancellationToken cancellationToken
     );
-    public Task<TokenResponse?> VerifyOtpAsync(Guid Guid, string Otp);
+    public Task<TokenResponse?> VerifyOtpAsync(Guid guid, string otp);
 
-    public Task<TokenResponse?> RefreshTokenAsync(string RefreshToken);
+    public Task<TokenResponse?> RefreshTokenAsync(string refreshToken);
+    public Task ForgotPasswordAsync(string email);
+    public Task<Result> ResetPasswordAsync(Guid token, string newPassword);
 }

@@ -22,6 +22,10 @@ namespace DailyDN.Domain.Entities
         public ICollection<Post> Posts { get; private set; } = [];
         public ICollection<UserChat> UserChats { get; set; } = [];
 
+        public Guid? ForgotPasswordToken { get; set; }
+        public DateTime? ForgotPasswordTokenGeneratedAt { get; set; }
+        public bool IsForgotPasswordTokenUsed { get; set; } = false;
+
         private User() { }
 
         public User(string name, string surname, string email, string passwordHash, string? avatarUrl = null, int id = 0)
@@ -91,6 +95,33 @@ namespace DailyDN.Domain.Entities
         }
 
         public string FullName => $"{Name} {Surname}";
+
+        public void GeneratePasswordResetToken()
+        {
+            ForgotPasswordToken = System.Guid.NewGuid();
+            ForgotPasswordTokenGeneratedAt = DateTime.UtcNow;
+            IsForgotPasswordTokenUsed = false;
+        }
+
+        public bool IsPasswordResetTokenValid(Guid token, TimeSpan validFor)
+        {
+            return ForgotPasswordToken.HasValue &&
+                   ForgotPasswordToken.Value == token &&
+                   ForgotPasswordTokenGeneratedAt.HasValue &&
+                   !IsForgotPasswordTokenUsed &&
+                   ForgotPasswordTokenGeneratedAt.Value.Add(validFor) > DateTime.UtcNow;
+        }
+
+        public void ResetPassword(string newHashedPassword)
+        {
+            PasswordHash = newHashedPassword;
+            IsForgotPasswordTokenUsed = true;
+            ForgotPasswordToken = null;
+            ForgotPasswordTokenGeneratedAt = null;
+        }
+
+
+
 
     }
 
