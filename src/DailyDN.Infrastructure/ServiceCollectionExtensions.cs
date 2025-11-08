@@ -1,6 +1,7 @@
 using DailyDN.Infrastructure.Contexts;
 using DailyDN.Infrastructure.Redis;
 using DailyDN.Infrastructure.Repositories;
+using DailyDN.Infrastructure.Repositories.Impl;
 using DailyDN.Infrastructure.Services;
 using DailyDN.Infrastructure.Services.Impl;
 using Microsoft.Extensions.Configuration;
@@ -14,6 +15,7 @@ namespace DailyDN.Infrastructure
         {
             services.AddScoped<IApplicationContext, DailyDNDbContext>();
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<ITokenService, TokenService>();
             services.AddSingleton<RedisConnectionFactory>();
             services.AddScoped<ICacheService, RedisCacheService>();
