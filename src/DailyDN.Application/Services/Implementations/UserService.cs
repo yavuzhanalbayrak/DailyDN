@@ -1,6 +1,6 @@
 using DailyDN.Application.Services.Interfaces;
 using DailyDN.Domain.Entities;
-using DailyDN.Infrastructure.Repositories;
+using DailyDN.Infrastructure.UnitOfWork;
 using Microsoft.Extensions.Logging;
 using DailyDN.Infrastructure.Services;
 using AutoMapper;
@@ -9,7 +9,7 @@ using DailyDN.Application.Dtos.RedisUser;
 namespace DailyDN.Application.Services.Implementations
 {
     public class UserService(
-        IUserRepository userRepository,
+        IUnitOfWork uow,
         ILogger<UserService> logger,
         ICacheService redis,
         IMapper mapper
@@ -31,7 +31,7 @@ namespace DailyDN.Application.Services.Implementations
 
             logger.LogInformation("User {UserId} not found in cache, querying database", id);
 
-            var user = await userRepository.GetUserWithRolesAsync(id);
+            var user = await uow.Users.GetUserWithRolesAsync(id);
             if (user == null)
             {
                 logger.LogWarning("User {UserId} not found in database", id);

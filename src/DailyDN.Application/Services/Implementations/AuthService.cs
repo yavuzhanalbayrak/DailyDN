@@ -4,7 +4,7 @@ using DailyDN.Application.Common.Model;
 using DailyDN.Application.Services.Interfaces;
 using DailyDN.Domain.Entities;
 using DailyDN.Infrastructure.Models;
-using DailyDN.Infrastructure.Repositories;
+using DailyDN.Infrastructure.UnitOfWork;
 using DailyDN.Infrastructure.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -12,8 +12,7 @@ using Microsoft.AspNetCore.Identity;
 namespace DailyDN.Application.Services.Implementations
 {
     public class AuthService(
-        IUserRepository userRepository,
-        IUserSessionRepository sessionRepository,
+        IUnitOfWork uow,
         IPasswordHasher<User> passwordHasher,
         IHttpContextAccessor httpContextAccessor,
         ITokenService tokenService
@@ -21,7 +20,7 @@ namespace DailyDN.Application.Services.Implementations
     {
         public async Task<Result> LoginAsync(string email, string password)
         {
-            var user = await userRepository.GetAsync(u => u.Email == email);
+            var user = await uow.Users.GetAsync(u => u.Email == email);
             if (!user.Any())
             {
                 return Result.Failure(new Error("Unauthorized", "Email or password is incorrect."));
@@ -40,7 +39,8 @@ namespace DailyDN.Application.Services.Implementations
 
             userEntity.SetOtp(otp.ToString(), guid);
 
-            await userRepository.UpdateAsync(userEntity);
+            await uow.Users.UpdateAsync(userEntity);
+            await uow.SaveChangesAsync();
 
             return Result.Success(new
             {
@@ -57,7 +57,7 @@ namespace DailyDN.Application.Services.Implementations
             CancellationToken cancellationToken
         )
         {
-            var exists = await userRepository.GetAsync(u => u.Email == email);
+            var exists = await uow.Users.GetAsync(u => u.Email == email);
             if (exists.Any())
             {
                 return Result.Failure(new Error("Conflict", "This email is already registered."));
@@ -75,7 +75,8 @@ namespace DailyDN.Application.Services.Implementations
             //TODO: email kontrolü için ayrı bir endpoint yazılacak.
             user.MarkEmailVerified();
 
-            await userRepository.AddAsync(user, cancellationToken);
+            await uow.Users.AddAsync(user, cancellationToken);
+            await uow.SaveChangesAsync();
 
             return Result.SuccessWithMessage("Registration completed successfully.");
         }
@@ -85,7 +86,7 @@ namespace DailyDN.Application.Services.Implementations
             var ipAddress = httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString() ?? "";
             var userAgent = httpContextAccessor.HttpContext?.Request.Headers.UserAgent.ToString() ?? "";
 
-            var userList = await userRepository.GetAsync(u => u.Guid == guid);
+            var userList = await uow.Users.GetAsync(u => u.Guid == guid);
             var user = userList[0];
 
             if (user.IsOtpValid(otp, TimeSpan.FromMinutes(1)))
@@ -93,7 +94,8 @@ namespace DailyDN.Application.Services.Implementations
                 var tokenResponse = await tokenService.GenerateTokens(user.Id, ipAddress, userAgent);
 
                 user.Login();
-                await userRepository.UpdateAsync(user);
+                await uow.Users.UpdateAsync(user);
+                await uow.SaveChangesAsync();
 
                 return tokenResponse;
             }
@@ -106,7 +108,7 @@ namespace DailyDN.Application.Services.Implementations
         {
             var requestRefreshTokenHash = Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(refreshToken)));
 
-            var session = (await sessionRepository.GetAsync(us => us.RefreshToken == requestRefreshTokenHash))[0];
+            var session = (await uow.UserSessions.GetAsync(us => us.RefreshToken == requestRefreshTokenHash))[0];
             if (session is null || !session.IsActive())
                 throw new UnauthorizedAccessException("Invalid or expired refresh token.");
 
@@ -117,19 +119,21 @@ namespace DailyDN.Application.Services.Implementations
             var newRefreshToken = newTokens.RefreshToken;
 
             session.Revoke();
-            await sessionRepository.UpdateAsync(session);
+            await uow.UserSessions.UpdateAsync(session);
+            await uow.SaveChangesAsync();
 
             return new TokenResponse(newAccessToken, newRefreshToken, newRefreshTokenExpiry, DateTime.Now);
         }
 
         public async Task ForgotPasswordAsync(string email)
         {
-            var user = (await userRepository.GetAsync(u => u.Email == email)).FirstOrDefault();
+            var user = (await uow.Users.GetAsync(u => u.Email == email)).FirstOrDefault();
             if (user is null)
                 return;
 
             user.GeneratePasswordResetToken();
-            await userRepository.UpdateAsync(user);
+            await uow.Users.UpdateAsync(user);
+            await uow.SaveChangesAsync();
 
             // var resetLink = $"https://frontend-app/reset-password?token={user.Guid}";
             // await emailService.SendPasswordResetEmailAsync(user.Email, resetLink);
@@ -137,14 +141,16 @@ namespace DailyDN.Application.Services.Implementations
 
         public async Task<Result> ResetPasswordAsync(Guid token, string newPassword)
         {
-            var user = (await userRepository.GetAsync(u => u.ForgotPasswordToken == token)).FirstOrDefault();
+            var user = (await uow.Users.GetAsync(u => u.ForgotPasswordToken == token)).FirstOrDefault();
             if (user is null || !user.IsPasswordResetTokenValid(token, TimeSpan.FromMinutes(15)))
                 return Result.Failure(new Error("Token.Invalid", "Token is invalid or has expired."));
 
             var hashedPassword = passwordHasher.HashPassword(null, newPassword);
             user.ResetPassword(hashedPassword);
 
-            await userRepository.UpdateAsync(user);
+            await uow.Users.UpdateAsync(user);
+            await uow.SaveChangesAsync();
+            
             return Result.SuccessWithMessage("Password reset successfully.");
         }
     }

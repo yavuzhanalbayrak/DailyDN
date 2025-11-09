@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace DailyDN.Infrastructure.Contexts
 {
-    public interface IApplicationContext
+    public interface IApplicationContext : IDisposable
     {
         DbSet<TEntity> Set<TEntity>() where TEntity : class;
 

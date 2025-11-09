@@ -179,7 +179,6 @@ namespace DailyDN.Infrastructure.Repositories
 
 
             await _context.AddAsync(entity, cancellationToken);
-            await _context.SaveChangesAsync(cancellationToken);
 
             return entity;
         }
@@ -188,14 +187,12 @@ namespace DailyDN.Infrastructure.Repositories
         {
             _logger.LogInformation("Updating entity of type {EntityType} with id {EntityId}", typeof(T).Name, entity.Id);
             _context.Update(entity);
-            await _context.SaveChangesAsync();
         }
 
         public async Task DeleteAsync(T entity)
         {
             _logger.LogInformation("Deleting entity of type {EntityType} with id {EntityId}", typeof(T).Name, entity.Id);
             _context.Remove(entity);
-            await _context.SaveChangesAsync();
         }
     }
 }

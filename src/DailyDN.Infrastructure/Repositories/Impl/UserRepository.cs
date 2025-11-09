@@ -15,5 +15,4 @@ namespace DailyDN.Infrastructure.Repositories.Impl
                 .FirstOrDefaultAsync(u => u.Id == id);
         }
     }
-
 }
