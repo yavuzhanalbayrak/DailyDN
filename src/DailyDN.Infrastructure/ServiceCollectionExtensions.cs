@@ -19,6 +19,8 @@ namespace DailyDN.Infrastructure
             services.AddScoped<IApplicationContext, DailyDNDbContext>();
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IUserSessionRepository, UserSessionRepository>();
+            services.AddScoped<IPostRepository, PostRepository>();
             services.AddScoped<ITokenService, TokenService>();
             services.AddSingleton<RedisConnectionFactory>();
             services.AddScoped<ICacheService, RedisCacheService>();

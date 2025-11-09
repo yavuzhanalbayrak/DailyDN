@@ -5,8 +5,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DailyDN.Application.Services.Implementations;
 
-public class PostsService(
-    IGenericRepository<Post> postRepository
+public class PostService(
+    IPostRepository postRepository
 ) : IPostsService
 {
     public async Task AddAsync(Post post, CancellationToken cancellationToken)

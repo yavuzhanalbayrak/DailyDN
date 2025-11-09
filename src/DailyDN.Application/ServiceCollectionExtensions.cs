@@ -26,7 +26,7 @@ namespace DailyDN.Application
             services.AddAutoMapper(typeof(MappingProfile).Assembly);
             services.AddValidatorsFromAssembly(ApplicationAssembly.Instance);
             services.AddScoped<IAuthenticatedUser, AuthenticatedUser>();
-            services.AddScoped<IPostsService, PostsService>();
+            services.AddScoped<IPostsService, PostService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped(typeof(IPasswordHasher<>), typeof(PasswordHasher<>));

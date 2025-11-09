@@ -12,8 +12,8 @@ using Microsoft.AspNetCore.Identity;
 namespace DailyDN.Application.Services.Implementations
 {
     public class AuthService(
-        IGenericRepository<User> userRepository,
-        IGenericRepository<UserSession> sessionRepository,
+        IUserRepository userRepository,
+        IUserSessionRepository sessionRepository,
         IPasswordHasher<User> passwordHasher,
         IHttpContextAccessor httpContextAccessor,
         ITokenService tokenService
