@@ -42,6 +42,7 @@ namespace DailyDN.Application.Services.Implementations
             await uow.Users.UpdateAsync(userEntity);
             await uow.SaveChangesAsync();
 
+            //TODO: Sms servisi yazılacak ve otp sms olarak gönderilecek.
             return Result.Success(new
             {
                 Guid = guid.ToString(),
@@ -135,7 +136,8 @@ namespace DailyDN.Application.Services.Implementations
             await uow.Users.UpdateAsync(user);
             await uow.SaveChangesAsync();
 
-            // var resetLink = $"https://frontend-app/reset-password?token={user.Guid}";
+            //TODO: Email servisi yazılacak.
+            // var resetLink = $"https://frontend-app/reset-password?token={user.ForgotPasswordToken}";
             // await emailService.SendPasswordResetEmailAsync(user.Email, resetLink);
         }
 
