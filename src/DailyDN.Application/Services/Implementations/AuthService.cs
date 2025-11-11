@@ -110,7 +110,7 @@ namespace DailyDN.Application.Services.Implementations
 
             var session = (await uow.UserSessions.GetAsync(us => us.RefreshToken == requestRefreshTokenHash))[0];
             if (session is null || !session.IsActive())
-                throw new UnauthorizedAccessException("Invalid or expired refresh token.");
+                return null;
 
             var newTokens = await tokenService.GenerateTokens(session.UserId, session.IpAddress, session.UserAgent);
 

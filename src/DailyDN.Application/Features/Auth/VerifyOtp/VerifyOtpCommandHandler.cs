@@ -10,9 +10,9 @@ namespace DailyDN.Application.Features.Auth.VerifyOtp
         IMapper mapper,
         ILogger<VerifyOtpCommandHandler> logger,
         IAuthService authService
-    ) : ICommandHandler<VerifyOtpCommand>
+    ) : ICommandHandler<VerifyOtpCommand, VerifyOtpCommandResponse>
     {
-        public async Task<Result> Handle(VerifyOtpCommand request, CancellationToken cancellationToken)
+        public async Task<Result<VerifyOtpCommandResponse>> Handle(VerifyOtpCommand request, CancellationToken cancellationToken)
         {
             logger.LogInformation("Otp service running.");
 

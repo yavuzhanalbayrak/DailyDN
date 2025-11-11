@@ -12,6 +12,9 @@ namespace DailyDN.Application.Features.Auth.RefreshToken
             try
             {
                 var tokenResponse = await authService.RefreshTokenAsync(request.RefreshToken);
+                if (tokenResponse is null)
+                    return Result.Failure<RefreshTokenCommandResponse>(new Error("Otp.Invalid", "OTP is invalid or has expired."));
+
                 var response = mapper.Map<RefreshTokenCommandResponse>(tokenResponse);
 
                 return Result.SuccessWithMessage(response, "Token refreshed successfully.");
