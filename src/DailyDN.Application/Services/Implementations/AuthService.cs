@@ -8,6 +8,7 @@ using DailyDN.Infrastructure.UnitOfWork;
 using DailyDN.Infrastructure.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using DailyDN.Infrastructure.Helpers;
 
 namespace DailyDN.Application.Services.Implementations
 {
@@ -107,7 +108,7 @@ namespace DailyDN.Application.Services.Implementations
 
         public async Task<TokenResponse?> RefreshTokenAsync(string refreshToken)
         {
-            var requestRefreshTokenHash = Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(refreshToken)));
+            var requestRefreshTokenHash = HashHelper.HashSha256(refreshToken);
 
             var session = (await uow.UserSessions.GetAsync(us => us.RefreshToken == requestRefreshTokenHash))[0];
             if (session is null || !session.IsActive())
