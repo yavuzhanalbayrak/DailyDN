@@ -127,6 +127,7 @@ namespace DailyDN.Infrastructure.Services.Impl
 
             var accessToken = await GenerateAccessToken(session.UserId);
             accessToken.RefreshToken = newRaw;
+            accessToken.RefreshTokenExpiration = newSession.ExpiresAt;
 
             return accessToken;
         }
