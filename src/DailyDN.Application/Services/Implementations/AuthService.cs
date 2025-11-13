@@ -34,6 +34,7 @@ namespace DailyDN.Application.Services.Implementations
                 return Result.Failure(new Error("Unauthorized", "Email or password is incorrect."));
             }
 
+            //TODO: OTP servisi yazılacak ve otp + guid oluşturulup/return edilip sms servisi ile otp gönderilecek.
             var otp = Random.Shared.Next(100000, 999999);
             var guid = Guid.NewGuid();
 
@@ -42,7 +43,6 @@ namespace DailyDN.Application.Services.Implementations
             await uow.Users.UpdateAsync(userEntity);
             await uow.SaveChangesAsync();
 
-            //TODO: Sms servisi yazılacak ve otp sms olarak gönderilecek.
             return Result.Success(new
             {
                 Guid = guid.ToString(),
