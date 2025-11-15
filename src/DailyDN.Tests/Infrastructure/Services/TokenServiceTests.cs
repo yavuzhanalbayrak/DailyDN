@@ -29,7 +29,7 @@ namespace DailyDN.Tests.Infrastructure.Services
         public void Setup()
         {
             // Fake user
-            _fakeUser = new User("John", "Doe", "john@example.com", "hashed")
+            _fakeUser = new User("John", "Doe", "john@example.com", "05002001020", "hashed")
             {
                 Id = 1,
                 UserRoles =
@@ -102,13 +102,13 @@ namespace DailyDN.Tests.Infrastructure.Services
             // Assert
             response.Should().NotBeNull();
             response.AccessToken.Should().NotBeNullOrWhiteSpace();
-            response.RefreshToken.Should().NotBeNullOrWhiteSpace();
+            response.RefreshTokenHash.Should().NotBeNullOrWhiteSpace();
 
             createdSession.Should().NotBeNull();
             createdSession!.UserId.Should().Be(_fakeUser.Id);
 
-            var expectedHash = HashHelper.HashSha256(response.RefreshToken);
-            createdSession.RefreshToken.Should().Be(expectedHash);
+            var expectedHash = HashHelper.HashSha256(response.RefreshTokenHash);
+            createdSession.RefreshTokenHash.Should().Be(expectedHash);
             createdSession.IpAddress.Should().Be(userIp);
             createdSession.UserAgent.Should().Be(userAgent);
 
@@ -146,7 +146,7 @@ namespace DailyDN.Tests.Infrastructure.Services
             var newToken = await _tokenService.RotateRefreshToken(oldRefreshToken, userIp, userAgent);
 
             // Assert
-            newToken.RefreshToken.Should().NotBe(oldRefreshToken);
+            newToken.RefreshTokenHash.Should().NotBe(oldRefreshToken);
 
             // old session must be revoked
             existingSession.IsRevoked.Should().BeTrue();
@@ -155,8 +155,8 @@ namespace DailyDN.Tests.Infrastructure.Services
             newCreatedSession!.IsRevoked.Should().BeFalse();
 
             // new token session must match hashed refresh token
-            var newHash = HashHelper.HashSha256(newToken.RefreshToken);
-            newCreatedSession.RefreshToken.Should().Be(newHash);
+            var newHash = HashHelper.HashSha256(newToken.RefreshTokenHash);
+            newCreatedSession.RefreshTokenHash.Should().Be(newHash);
 
             _uowMock.Verify(x => x.SaveChangesAsync(), Times.Exactly(1));
         }

@@ -46,6 +46,7 @@ namespace DailyDN.Tests.Application.Features.Users.GetUserById
                 "John",
                 "Doe",
                 "john@example.com",
+                "5002001020",
                 "passwordHash",
                 "/url",
                 1

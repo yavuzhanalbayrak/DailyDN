@@ -29,7 +29,7 @@ namespace DailyDN.Tests.Application.Features.Auth.Register
         public async Task Handle_ShouldReturnSuccess_WhenRegistrationSucceeds()
         {
             // Arrange
-            var command = new RegisterCommand("John", "Doe", "john.doe@example.com", "StrongPass1!");
+            var command = new RegisterCommand("John", "Doe", "john.doe@example.com", "5002001020", "StrongPass1!");
             var expectedResult = Result.SuccessWithMessage("User registered successfully.");
 
             _authServiceMock
@@ -37,6 +37,7 @@ namespace DailyDN.Tests.Application.Features.Auth.Register
                     command.Name,
                     command.Surname,
                     command.Email,
+                    command.PhoneNumber,
                     command.Password,
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(expectedResult);
@@ -52,24 +53,26 @@ namespace DailyDN.Tests.Application.Features.Auth.Register
                 command.Name,
                 command.Surname,
                 command.Email,
+                command.PhoneNumber,
                 command.Password,
                 It.IsAny<CancellationToken>()), Times.Once);
 
             _loggerMock.VerifyLog(LogLevel.Information, $"User registering. Email: {command.Email}", Times.Once());
         }
-
         [Test]
         public async Task Handle_ShouldReturnFailure_WhenRegistrationFails()
         {
             // Arrange
-            var command = new RegisterCommand("John", "Doe", "john.doe@example.com", "WeakPass");
-            var expectedResult = Result.Failure(new Error("Auth.EmailTaken", "Email is already taken."));
+            var error = new Error("Auth.EmailOrPhoneNumberTaken", "Email or phone number is already taken.");
+            var command = new RegisterCommand("John", "Doe", "john.doe@example.com", "5002001020", "WeakPass");
+            var expectedResult = Result.Failure(error);
 
             _authServiceMock
                 .Setup(s => s.RegisterAsync(
                     command.Name,
                     command.Surname,
                     command.Email,
+                    command.PhoneNumber,
                     command.Password,
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(expectedResult);
@@ -79,13 +82,14 @@ namespace DailyDN.Tests.Application.Features.Auth.Register
 
             // Assert
             result.IsSuccess.Should().BeFalse();
-            result.Error!.Code.Should().Be("Auth.EmailTaken");
-            result.Error.Message.Should().Be("Email is already taken.");
+            result.Error!.Code.Should().Be(error.Code);
+            result.Error.Message.Should().Be(error.Message);
 
             _authServiceMock.Verify(s => s.RegisterAsync(
                 command.Name,
                 command.Surname,
                 command.Email,
+                command.PhoneNumber,
                 command.Password,
                 It.IsAny<CancellationToken>()), Times.Once);
 
@@ -103,7 +107,7 @@ namespace DailyDN.Tests.Application.Features.Auth.Register
                     It.IsAny<EventId>(),
                     It.Is<It.IsAnyType>((v, _) => v.ToString()!.Contains(containsMessage)),
                     It.IsAny<Exception>(),
-                    It.IsAny<Func<It.IsAnyType, Exception?, string>>() ),
+                    It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
                 times);
         }
     }

@@ -7,7 +7,7 @@ namespace DailyDN.Domain.Entities
         public UserSession(int userId, string refreshToken, string ipAddress, string userAgent, DateTime expiresAt)
         {
             UserId = userId;
-            RefreshToken = refreshToken;
+            RefreshTokenHash = refreshToken;
             IpAddress = ipAddress;
             UserAgent = userAgent;
             ExpiresAt = expiresAt;
@@ -17,7 +17,7 @@ namespace DailyDN.Domain.Entities
 
         public int UserId { get; private set; }
         public User? User { get; set; }
-        public string RefreshToken { get; private set; } = string.Empty;
+        public string RefreshTokenHash { get; private set; } = string.Empty;
         public string IpAddress { get; private set; } = string.Empty;
         public string UserAgent { get; private set; } = string.Empty;
         public DateTime ExpiresAt { get; private set; }

@@ -87,7 +87,7 @@ namespace DailyDN.Infrastructure.Services.Impl
             ));
             await uow.SaveChangesAsync();
 
-            token.RefreshToken = rawRefreshToken;
+            token.RefreshTokenHash = rawRefreshToken;
             token.RefreshTokenExpiration = refreshTokenExpiry;
 
             return token;
@@ -98,7 +98,7 @@ namespace DailyDN.Infrastructure.Services.Impl
             var oldRefreshTokenHash = HashToken(oldRefreshToken);
 
             var session = await uow.UserSessions
-                .FirstOrDefaultAsync(s => s.RefreshToken == oldRefreshTokenHash && !s.IsRevoked);
+                .FirstOrDefaultAsync(s => s.RefreshTokenHash == oldRefreshTokenHash && !s.IsRevoked);
 
             if (session == null || !session.IsActive())
                 throw new SecurityTokenException("Invalid refresh token.");
@@ -120,7 +120,7 @@ namespace DailyDN.Infrastructure.Services.Impl
             await uow.SaveChangesAsync();
 
             var accessToken = await GenerateAccessToken(session.UserId);
-            accessToken.RefreshToken = newRaw;
+            accessToken.RefreshTokenHash = newRaw;
             accessToken.RefreshTokenExpiration = newSession.ExpiresAt;
 
             return accessToken;

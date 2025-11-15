@@ -6,6 +6,7 @@ namespace DailyDN.Application.Features.Auth.Register
         string Name,
         string Surname,
         string Email,
+        string PhoneNumber,
         string Password
     ) : ICommand;
 }

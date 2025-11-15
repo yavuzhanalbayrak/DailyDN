@@ -7,6 +7,7 @@ using DailyDN.Infrastructure.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using DailyDN.Infrastructure.Helpers;
+using DailyDN.Domain.Enums;
 
 namespace DailyDN.Application.Services.Implementations
 {
@@ -15,7 +16,8 @@ namespace DailyDN.Application.Services.Implementations
         IPasswordHasher<User> passwordHasher,
         IHttpContextAccessor httpContextAccessor,
         ITokenService tokenService,
-        IOtpService otpService
+        IOtpService otpService,
+        ISmsService smsService
     ) : IAuthService
     {
         public async Task<Result> LoginAsync(string email, string password)
@@ -33,11 +35,12 @@ namespace DailyDN.Application.Services.Implementations
                 return Result.Failure(new Error("Unauthorized", "Email or password is incorrect."));
             }
 
-            //TODO: OTP servisi yazılacak ve otp + guid oluşturulup/return edilip sms servisi ile otp gönderilecek.
             var otpDto = otpService.CreateOtp();
 
             var otp = otpDto.Otp;
             var guid = otpDto.OtpGuid;
+
+            await smsService.SendSmsAsync(user.PhoneNumber, otp.ToString());
 
             user.SetOtp(otp.ToString(), guid);
 
@@ -47,7 +50,7 @@ namespace DailyDN.Application.Services.Implementations
             return Result.Success(new
             {
                 Guid = guid.ToString(),
-                Otp = otp // Sms servis yok, response içinde dönülüyor
+                Otp = otp // Fake sms provider olduğu için otp response içinde dönülüyor.
             });
         }
 
@@ -55,14 +58,21 @@ namespace DailyDN.Application.Services.Implementations
             string name,
             string surname,
             string email,
+            string phoneNumber,
             string password,
             CancellationToken cancellationToken
         )
         {
-            var exists = await uow.Users.GetAsync(u => u.Email == email);
-            if (exists.Any())
+            var isEmailExists = await uow.Users.GetAsync(u => u.Email == email);
+            if (isEmailExists.Any())
             {
                 return Result.Failure(new Error("Conflict", "This email is already registered."));
+            }
+
+            var isPhoneNumberExists = await uow.Users.GetAsync(u => u.PhoneNumber == phoneNumber);
+            if (isPhoneNumberExists.Any())
+            {
+                return Result.Failure(new Error("Conflict", "This phone number is already registered."));
             }
 
             var hashedPassword = passwordHasher.HashPassword(null, password);
@@ -71,7 +81,9 @@ namespace DailyDN.Application.Services.Implementations
                 name: name,
                 surname: surname,
                 email: email,
-                passwordHash: hashedPassword
+                phoneNumber: phoneNumber,
+                passwordHash: hashedPassword,
+                userRoles: [new(0, (int)RoleEnum.User)]
             );
 
             //TODO: email kontrolü için ayrı bir endpoint yazılacak.
@@ -110,7 +122,7 @@ namespace DailyDN.Application.Services.Implementations
         {
             var requestRefreshTokenHash = HashHelper.HashSha256(refreshToken);
 
-            var session = await uow.UserSessions.FirstOrDefaultAsync(us => us.RefreshToken == requestRefreshTokenHash);
+            var session = await uow.UserSessions.FirstOrDefaultAsync(us => us.RefreshTokenHash == requestRefreshTokenHash);
             if (session is null || !session.IsActive())
                 return null;
 
@@ -118,7 +130,7 @@ namespace DailyDN.Application.Services.Implementations
 
             var newAccessToken = newTokens.AccessToken;
             var newRefreshTokenExpiry = newTokens.RefreshTokenExpiration;
-            var newRefreshToken = newTokens.RefreshToken;
+            var newRefreshToken = newTokens.RefreshTokenHash;
 
             session.Revoke();
             await uow.UserSessions.UpdateAsync(session);

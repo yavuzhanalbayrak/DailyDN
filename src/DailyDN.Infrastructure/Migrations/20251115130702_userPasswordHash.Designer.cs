@@ -4,6 +4,7 @@ using DailyDN.Infrastructure.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DailyDN.Infrastructure.Migrations
 {
     [DbContext(typeof(DailyDNDbContext))]
-    partial class DailyDNDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251115130702_userPasswordHash")]
+    partial class userPasswordHash
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -485,7 +488,7 @@ namespace DailyDN.Infrastructure.Migrations
                             IsForgotPasswordTokenUsed = false,
                             IsGuidUsed = false,
                             Name = "john",
-                            PasswordHash = "AQAAAAIAAYagAAAAELAUs+nJPSlymbpaEf2On5XTsZilCbc+jpMAqhini8fYQU/yeTEKm1diq/A5/pcfWw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEN9ATdcJNkWNAYA+pr58r13syNkh73T3qjBdMdAT7yTG0AYMxY2aNhXYlSEf0E1rHQ==",
                             PhoneNumber = "05002001020",
                             Surname = "doe"
                         });
@@ -628,7 +631,7 @@ namespace DailyDN.Infrastructure.Migrations
                     b.Property<bool>("IsRevoked")
                         .HasColumnType("bit");
 
-                    b.Property<string>("RefreshTokenHash")
+                    b.Property<string>("RefreshToken")
                         .IsRequired()
                         .HasMaxLength(512)
                         .HasColumnType("nvarchar(512)");
@@ -649,7 +652,7 @@ namespace DailyDN.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RefreshTokenHash");
+                    b.HasIndex("RefreshToken");
 
                     b.HasIndex("UserId");
 

@@ -16,6 +16,7 @@ namespace DailyDN.Application.Features.Auth.Register
                 request.Name,
                 request.Surname,
                 request.Email,
+                request.PhoneNumber,
                 request.Password,
                 cancellationToken
             );

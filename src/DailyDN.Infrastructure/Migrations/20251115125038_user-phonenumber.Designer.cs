@@ -4,6 +4,7 @@ using DailyDN.Infrastructure.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DailyDN.Infrastructure.Migrations
 {
     [DbContext(typeof(DailyDNDbContext))]
-    partial class DailyDNDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251115125038_user-phonenumber")]
+    partial class userphonenumber
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -485,7 +488,7 @@ namespace DailyDN.Infrastructure.Migrations
                             IsForgotPasswordTokenUsed = false,
                             IsGuidUsed = false,
                             Name = "john",
-                            PasswordHash = "AQAAAAIAAYagAAAAELAUs+nJPSlymbpaEf2On5XTsZilCbc+jpMAqhini8fYQU/yeTEKm1diq/A5/pcfWw==",
+                            PasswordHash = "hashpassword",
                             PhoneNumber = "05002001020",
                             Surname = "doe"
                         });
@@ -581,17 +584,6 @@ namespace DailyDN.Infrastructure.Migrations
                         .HasFilter("[IsDeleted] = 0");
 
                     b.ToTable("UserRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedBy = 0,
-                            IsDeleted = false,
-                            RoleId = 2,
-                            UserId = 1
-                        });
                 });
 
             modelBuilder.Entity("DailyDN.Domain.Entities.UserSession", b =>
@@ -628,7 +620,7 @@ namespace DailyDN.Infrastructure.Migrations
                     b.Property<bool>("IsRevoked")
                         .HasColumnType("bit");
 
-                    b.Property<string>("RefreshTokenHash")
+                    b.Property<string>("RefreshToken")
                         .IsRequired()
                         .HasMaxLength(512)
                         .HasColumnType("nvarchar(512)");
@@ -649,7 +641,7 @@ namespace DailyDN.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RefreshTokenHash");
+                    b.HasIndex("RefreshToken");
 
                     b.HasIndex("UserId");
 

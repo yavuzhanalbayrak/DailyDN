@@ -7,6 +7,7 @@ namespace DailyDN.Domain.Entities
         public string? AvatarUrl { get; private set; }
 
         public string Email { get; private set; } = null!;
+        public string PhoneNumber { get; private set; } = null!;
         public string PasswordHash { get; private set; } = null!;
 
         public string? OtpCode { get; private set; }
@@ -28,14 +29,16 @@ namespace DailyDN.Domain.Entities
 
         private User() { }
 
-        public User(string name, string surname, string email, string passwordHash, string? avatarUrl = null, int id = 0)
+        public User(string name, string surname, string email, string phoneNumber, string passwordHash, string? avatarUrl = null, int id = 0, ICollection<UserRole>? userRoles = null)
         {
             Id = id;
             Name = name;
             Surname = surname;
             Email = email;
+            PhoneNumber = phoneNumber;
             PasswordHash = passwordHash;
             AvatarUrl = avatarUrl;
+            UserRoles = userRoles ?? [];
         }
 
         public void SetOtp(string code, Guid guid)

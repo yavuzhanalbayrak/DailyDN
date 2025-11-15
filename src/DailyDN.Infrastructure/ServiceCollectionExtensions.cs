@@ -23,6 +23,8 @@ namespace DailyDN.Infrastructure
             services.AddScoped<IPostRepository, PostRepository>();
             services.AddScoped<UnitOfWork.IUnitOfWork, UnitOfWork.UnitOfWork>();
             services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<ISmsService, SmsService>();
+            services.AddScoped<ISmsProvider, FakeSmsProvider>();
             services.AddSingleton<RedisConnectionFactory>();
             services.AddScoped<ICacheService, RedisCacheService>();
             services.AddSingleton<AsyncPolicy>(sp =>

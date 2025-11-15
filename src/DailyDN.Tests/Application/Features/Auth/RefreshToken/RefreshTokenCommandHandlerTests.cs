@@ -29,7 +29,7 @@ namespace DailyDN.Tests.Application.Features.Auth.RefreshToken
             var refreshToken = "valid-refresh-token";
             var tokenResponse = new TokenResponse("access-token", refreshToken, DateTime.UtcNow.AddMinutes(10), DateTime.UtcNow.AddHours(1));
             var command = new RefreshTokenCommand(refreshToken);
-            var expectedResponse = new RefreshTokenCommandResponse(tokenResponse.AccessToken, tokenResponse.RefreshToken, tokenResponse.RefreshTokenExpiration);
+            var expectedResponse = new RefreshTokenCommandResponse(tokenResponse.AccessToken, tokenResponse.RefreshTokenHash, tokenResponse.RefreshTokenExpiration);
 
             _authServiceMock.Setup(s => s.RefreshTokenAsync(refreshToken))
                             .ReturnsAsync(tokenResponse);

@@ -12,14 +12,14 @@ namespace DailyDN.Infrastructure.Configurations
 
             builder.HasKey(s => s.Id);
 
-            builder.HasIndex(s => s.RefreshToken);
+            builder.HasIndex(s => s.RefreshTokenHash);
 
             builder.HasOne(s => s.User)
                    .WithMany(u => u.UserSessions)
                    .HasForeignKey(s => s.UserId)
                    .OnDelete(DeleteBehavior.Cascade);
 
-            builder.Property(s => s.RefreshToken)
+            builder.Property(s => s.RefreshTokenHash)
                    .IsRequired()
                    .HasMaxLength(512);
 

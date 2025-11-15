@@ -49,7 +49,7 @@ namespace DailyDN.Tests.Application.Features.Auth.VerifyOtp
             {
                 AccessToken = fakeToken.AccessToken,
                 AccessTokenExpiration = fakeToken.AccessTokenExpiration,
-                RefreshToken = fakeToken.RefreshToken,
+                RefreshTokenHash = fakeToken.RefreshTokenHash,
                 RefreshTokenExpiration = fakeToken.RefreshTokenExpiration
             };
 
