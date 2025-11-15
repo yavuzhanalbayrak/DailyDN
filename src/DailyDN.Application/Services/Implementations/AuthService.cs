@@ -21,14 +21,13 @@ namespace DailyDN.Application.Services.Implementations
     {
         public async Task<Result> LoginAsync(string email, string password)
         {
-            var user = await uow.Users.GetAsync(u => u.Email == email);
-            if (!user.Any())
+            var user = await uow.Users.FirstOrDefaultAsync(u => u.Email == email);
+            if (user is null)
             {
                 return Result.Failure(new Error("Unauthorized", "Email or password is incorrect."));
             }
 
-            var userEntity = user[0];
-            var passwordVerificationResult = passwordHasher.VerifyHashedPassword(userEntity, userEntity.PasswordHash, password);
+            var passwordVerificationResult = passwordHasher.VerifyHashedPassword(user, user.PasswordHash, password);
 
             if (passwordVerificationResult != PasswordVerificationResult.Success)
             {
@@ -39,9 +38,9 @@ namespace DailyDN.Application.Services.Implementations
             var otp = Random.Shared.Next(100000, 999999);
             var guid = Guid.NewGuid();
 
-            userEntity.SetOtp(otp.ToString(), guid);
+            user.SetOtp(otp.ToString(), guid);
 
-            await uow.Users.UpdateAsync(userEntity);
+            await uow.Users.UpdateAsync(user);
             await uow.SaveChangesAsync();
 
             return Result.Success(new
@@ -110,7 +109,7 @@ namespace DailyDN.Application.Services.Implementations
         {
             var requestRefreshTokenHash = HashHelper.HashSha256(refreshToken);
 
-            var session = (await uow.UserSessions.GetAsync(us => us.RefreshToken == requestRefreshTokenHash))[0];
+            var session = await uow.UserSessions.FirstOrDefaultAsync(us => us.RefreshToken == requestRefreshTokenHash);
             if (session is null || !session.IsActive())
                 return null;
 
@@ -129,7 +128,7 @@ namespace DailyDN.Application.Services.Implementations
 
         public async Task ForgotPasswordAsync(string email)
         {
-            var user = (await uow.Users.GetAsync(u => u.Email == email)).FirstOrDefault();
+            var user = await uow.Users.FirstOrDefaultAsync(u => u.Email == email);
             if (user is null)
                 return;
 
@@ -144,7 +143,7 @@ namespace DailyDN.Application.Services.Implementations
 
         public async Task<Result> ResetPasswordAsync(Guid token, string newPassword)
         {
-            var user = (await uow.Users.GetAsync(u => u.ForgotPasswordToken == token)).FirstOrDefault();
+            var user = await uow.Users.FirstOrDefaultAsync(u => u.ForgotPasswordToken == token);
             if (user is null || !user.IsPasswordResetTokenValid(token, TimeSpan.FromMinutes(15)))
                 return Result.Failure(new Error("Token.Invalid", "Token is invalid or has expired."));
 
@@ -153,7 +152,7 @@ namespace DailyDN.Application.Services.Implementations
 
             await uow.Users.UpdateAsync(user);
             await uow.SaveChangesAsync();
-            
+
             return Result.SuccessWithMessage("Password reset successfully.");
         }
     }

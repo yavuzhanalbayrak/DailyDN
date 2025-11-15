@@ -3,26 +3,20 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using DailyDN.Domain.Entities;
-using DailyDN.Infrastructure.Contexts;
 using DailyDN.Infrastructure.Models;
-using Microsoft.EntityFrameworkCore;
+using DailyDN.Infrastructure.UnitOfWork;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace DailyDN.Infrastructure.Services.Impl
 {
-    public class TokenService(IOptions<JwtSettings> jwtOptions, IApplicationContext context) : ITokenService
+    public class TokenService(IOptions<JwtSettings> jwtOptions, IUnitOfWork uow) : ITokenService
     {
         private readonly JwtSettings _jwtSettings = jwtOptions.Value;
 
         private async Task<TokenResponse> GenerateAccessToken(int userId)
         {
-            var user = await context.Set<User>()
-                .Include(u => u.UserRoles)
-                    .ThenInclude(ur => ur.Role)
-                        .ThenInclude(r => r.RoleClaims)
-                            .ThenInclude(rc => rc.Claim)
-                .FirstAsync(u => u.Id == userId);
+            var user = await uow.Users.GetUserWithRolesAndClaimsAsync(userId);
 
             var claims = new List<System.Security.Claims.Claim>
             {
@@ -83,7 +77,7 @@ namespace DailyDN.Infrastructure.Services.Impl
 
             DateTime refreshTokenExpiry = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpiresInDays);
 
-            context.Set<UserSession>().Add(new UserSession
+            await uow.UserSessions.AddAsync(new UserSession
             (
                 userId,
                 refreshTokenHash,
@@ -91,7 +85,7 @@ namespace DailyDN.Infrastructure.Services.Impl
                 userAgent,
                 refreshTokenExpiry
             ));
-            await context.SaveChangesAsync();
+            await uow.SaveChangesAsync();
 
             token.RefreshToken = rawRefreshToken;
             token.RefreshTokenExpiration = refreshTokenExpiry;
@@ -101,10 +95,10 @@ namespace DailyDN.Infrastructure.Services.Impl
 
         public async Task<TokenResponse> RotateRefreshToken(string oldRefreshToken, string ipAddress, string userAgent)
         {
-            var oldHash = HashToken(oldRefreshToken);
+            var oldRefreshTokenHash = HashToken(oldRefreshToken);
 
-            var session = await context.Set<UserSession>()
-                .FirstOrDefaultAsync(s => s.RefreshToken == oldHash && !s.IsRevoked);
+            var session = await uow.UserSessions
+                .FirstOrDefaultAsync(s => s.RefreshToken == oldRefreshTokenHash && !s.IsRevoked);
 
             if (session == null || !session.IsActive())
                 throw new SecurityTokenException("Invalid refresh token.");
@@ -122,8 +116,8 @@ namespace DailyDN.Infrastructure.Services.Impl
                 DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpiresInDays)
             );
 
-            context.Set<UserSession>().Add(newSession);
-            await context.SaveChangesAsync();
+            await uow.UserSessions.AddAsync(newSession);
+            await uow.SaveChangesAsync();
 
             var accessToken = await GenerateAccessToken(session.UserId);
             accessToken.RefreshToken = newRaw;

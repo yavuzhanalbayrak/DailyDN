@@ -82,7 +82,7 @@ namespace DailyDN.Infrastructure.Repositories
             }
             else
                 query = query.OrderByDescending(e => e.CreatedAt);
-            
+
             var items = await query
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -147,6 +147,54 @@ namespace DailyDN.Infrastructure.Repositories
                 return await orderBy(query).ToListAsync();
 
             return await query.ToListAsync();
+        }
+
+        public virtual async Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate)
+        {
+            _logger.LogInformation("Getting entities of type {EntityType} with predicate", typeof(T).Name);
+            return await _dbSet.Where(predicate).FirstOrDefaultAsync();
+        }
+
+        public virtual async Task<T?> FirstOrDefaultAsync(
+            Expression<Func<T, bool>> predicate = null,
+            string includeString = null,
+            bool disableTracking = true)
+        {
+            _logger.LogInformation("Getting entities of type {EntityType} with predicate and ordering", typeof(T).Name);
+
+            IQueryable<T> query = _dbSet;
+
+            if (disableTracking)
+                query = query.AsNoTracking();
+
+            if (!string.IsNullOrWhiteSpace(includeString))
+                query = query.Include(includeString);
+
+            if (predicate != null)
+                query = query.Where(predicate);
+
+            return await query.FirstOrDefaultAsync();
+        }
+
+        public virtual async Task<T?> FirstOrDefaultAsync(
+            Expression<Func<T, bool>> predicate = null,
+            List<Expression<Func<T, object>>> includes = null,
+            bool disableTracking = true)
+        {
+            _logger.LogInformation("Getting entities of type {EntityType} with complex parameters", typeof(T).Name);
+
+            IQueryable<T> query = _dbSet;
+
+            if (disableTracking)
+                query = query.AsNoTracking();
+
+            if (includes != null)
+                query = includes.Aggregate(query, (current, include) => current.Include(include));
+
+            if (predicate != null)
+                query = query.Where(predicate);
+
+            return await query.FirstOrDefaultAsync();
         }
 
         public virtual async Task<T> GetByIdAsync(int id)

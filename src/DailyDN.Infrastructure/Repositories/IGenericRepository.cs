@@ -33,6 +33,15 @@ namespace DailyDN.Infrastructure.Repositories
             Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
             List<Expression<Func<T, object>>> includes = null,
             bool disableTracking = true);
+        Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate);
+        Task<T?> FirstOrDefaultAsync(
+            Expression<Func<T, bool>> predicate = null,
+            string includeString = null,
+            bool disableTracking = true);
+        Task<T?> FirstOrDefaultAsync(
+            Expression<Func<T, bool>> predicate = null,
+            List<Expression<Func<T, object>>> includes = null,
+            bool disableTracking = true);
         Task<T> GetByIdAsync(int id);
         Task<T> GetByIdAsync(int id, List<Expression<Func<T, object>>> includes = null);
         Task<T> AddAsync(T entity, CancellationToken cancellationToken = default);
