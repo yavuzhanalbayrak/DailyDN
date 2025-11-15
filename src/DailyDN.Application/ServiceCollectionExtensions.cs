@@ -29,6 +29,7 @@ namespace DailyDN.Application
             services.AddScoped<IPostsService, PostService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IOtpService, OtpService>();
             services.AddScoped(typeof(IPasswordHasher<>), typeof(PasswordHasher<>));
             services.AddHttpContextAccessor();
             

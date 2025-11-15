@@ -1,5 +1,3 @@
-using System.Security.Cryptography;
-using System.Text;
 using DailyDN.Application.Common.Model;
 using DailyDN.Application.Services.Interfaces;
 using DailyDN.Domain.Entities;
@@ -16,7 +14,8 @@ namespace DailyDN.Application.Services.Implementations
         IUnitOfWork uow,
         IPasswordHasher<User> passwordHasher,
         IHttpContextAccessor httpContextAccessor,
-        ITokenService tokenService
+        ITokenService tokenService,
+        IOtpService otpService
     ) : IAuthService
     {
         public async Task<Result> LoginAsync(string email, string password)
@@ -35,8 +34,10 @@ namespace DailyDN.Application.Services.Implementations
             }
 
             //TODO: OTP servisi yazılacak ve otp + guid oluşturulup/return edilip sms servisi ile otp gönderilecek.
-            var otp = Random.Shared.Next(100000, 999999);
-            var guid = Guid.NewGuid();
+            var otpDto = otpService.CreateOtp();
+
+            var otp = otpDto.Otp;
+            var guid = otpDto.OtpGuid;
 
             user.SetOtp(otp.ToString(), guid);
 
