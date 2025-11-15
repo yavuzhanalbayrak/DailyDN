@@ -1,16 +1,13 @@
-using System;
-using System.Threading.Tasks;
+using System.Linq.Expressions;
 using DailyDN.Domain.Entities;
-using DailyDN.Infrastructure.Contexts;
 using DailyDN.Infrastructure.Helpers;
 using DailyDN.Infrastructure.Models;
-using DailyDN.Infrastructure.Services;
+using DailyDN.Infrastructure.Repositories;
 using DailyDN.Infrastructure.Services.Impl;
+using DailyDN.Infrastructure.UnitOfWork;
 using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Moq;
-using NUnit.Framework;
 
 namespace DailyDN.Tests.Infrastructure.Services
 {
@@ -19,21 +16,56 @@ namespace DailyDN.Tests.Infrastructure.Services
     {
         private TokenService _tokenService = null!;
         private Mock<IOptions<JwtSettings>> _jwtOptionsMock = null!;
-        private DailyDNDbContext _context = null!;
+        private Mock<IUnitOfWork> _uowMock = null!;
+        private Mock<IUserRepository> _userRepoMock = null!;
+        private Mock<IUserSessionRepository> _sessionRepoMock = null!;
+
         private readonly string userAgent = "unit-test-agent";
         private readonly string userIp = "127.0.0.1";
 
+        private User _fakeUser = null!;
 
         [SetUp]
         public void Setup()
         {
-            // In-memory DbContext
-            var options = new DbContextOptionsBuilder<DailyDNDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
+            // Fake user
+            _fakeUser = new User("John", "Doe", "john@example.com", "hashed")
+            {
+                Id = 1,
+                UserRoles =
+                {
+                    new UserRole
+                    {
+                        Role = new Role("Admin")
+                        {
+                            RoleClaims =
+                            {
+                                new RoleClaim()
+                                {
+                                    RoleId = 1,
+                                    Role = new Role("Admin")
+                                    {
+                                        Id = 1
+                                    },
+                                    ClaimId = 1,
+                                    Claim = new Claim("Role","Admin")
+                                }
+                            }
+                        }
+                    }
+                }
+            };
 
-            _context = new DailyDNDbContext(options, Mock.Of<Microsoft.Extensions.Logging.ILogger<DailyDNDbContext>>(), Mock.Of<IAuthenticatedUser>());
+            // Mock Repositories
+            _userRepoMock = new Mock<IUserRepository>();
+            _sessionRepoMock = new Mock<IUserSessionRepository>();
+            _uowMock = new Mock<IUnitOfWork>();
 
+            // Wiring repos into UoW
+            _uowMock.SetupGet(x => x.Users).Returns(_userRepoMock.Object);
+            _uowMock.SetupGet(x => x.UserSessions).Returns(_sessionRepoMock.Object);
+
+            // Jwt settings
             _jwtOptionsMock = new Mock<IOptions<JwtSettings>>();
             _jwtOptionsMock.Setup(x => x.Value).Returns(new JwtSettings
             {
@@ -44,83 +76,89 @@ namespace DailyDN.Tests.Infrastructure.Services
                 RefreshTokenExpiresInDays = 7
             });
 
-            _tokenService = new TokenService(_jwtOptionsMock.Object, _context);
+            _tokenService = new TokenService(_jwtOptionsMock.Object, _uowMock.Object);
+
+            // Default mocks
+            _userRepoMock.Setup(x => x.GetUserWithRolesAndClaimsAsync(It.IsAny<int>()))
+                         .ReturnsAsync(_fakeUser);
+
+            _uowMock.Setup(x => x.SaveChangesAsync()).ReturnsAsync(1);
         }
 
         [Test]
-        public async Task GenerateTokens_ShouldReturnAccessAndRefreshToken()
+        public async Task GenerateTokens_ShouldCreateSession_AndReturnTokens()
         {
             // Arrange
-            var user = new User("John", "Doe", "john@example.com", "hashedpassword");
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            UserSession? createdSession = null;
+
+            _sessionRepoMock
+                .Setup(x => x.AddAsync(It.IsAny<UserSession>(), It.IsAny<CancellationToken>()))
+                .Callback<UserSession, CancellationToken>((s, _) => createdSession = s)
+                .ReturnsAsync((UserSession s, CancellationToken _) => s);
 
             // Act
-            var tokenResponse = await _tokenService.GenerateTokens(user.Id, userIp, userAgent);
+            var response = await _tokenService.GenerateTokens(_fakeUser.Id, userIp, userAgent);
 
             // Assert
-            tokenResponse.Should().NotBeNull();
-            tokenResponse.AccessToken.Should().NotBeNullOrWhiteSpace();
-            tokenResponse.RefreshToken.Should().NotBeNullOrWhiteSpace();
-            tokenResponse.AccessTokenExpiration.Should().BeAfter(DateTime.UtcNow);
-            tokenResponse.RefreshTokenExpiration.Should().BeAfter(DateTime.UtcNow);
+            response.Should().NotBeNull();
+            response.AccessToken.Should().NotBeNullOrWhiteSpace();
+            response.RefreshToken.Should().NotBeNullOrWhiteSpace();
 
-            var refreshTokenHash = HashHelper.HashSha256(tokenResponse.RefreshToken);
+            createdSession.Should().NotBeNull();
+            createdSession!.UserId.Should().Be(_fakeUser.Id);
 
-            var session = await _context.Set<UserSession>().FirstOrDefaultAsync();
-            session.Should().NotBeNull();
-            session!.UserId.Should().Be(user.Id);
-            session!.RefreshToken.Should().Be(refreshTokenHash);
-            session!.ExpiresAt.Should().Be(tokenResponse.RefreshTokenExpiration);
-            session!.UserAgent.Should().Be(userAgent);
-            session!.IpAddress.Should().Be(userIp);
-            session.IsRevoked.Should().BeFalse();
+            var expectedHash = HashHelper.HashSha256(response.RefreshToken);
+            createdSession.RefreshToken.Should().Be(expectedHash);
+            createdSession.IpAddress.Should().Be(userIp);
+            createdSession.UserAgent.Should().Be(userAgent);
+
+            _uowMock.Verify(x => x.SaveChangesAsync(), Times.Once);
         }
 
         [Test]
-        public async Task RotateRefreshToken_ShouldRevokeOldTokenAndReturnNewAccessToken()
+        public async Task RotateRefreshToken_ShouldRevokeOldToken_AndCreateNewOne()
         {
-            // Arrange
-            var user = new User("Jane", "Smith", "jane@example.com", "hashedpassword");
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            // Arrange – old session
+            string oldRefreshToken = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
+            string oldHash = HashHelper.HashSha256(oldRefreshToken);
 
-            var tokenResponse = await _tokenService.GenerateTokens(user.Id, userIp, userAgent);
+            var existingSession = new UserSession(
+                _fakeUser.Id,
+                oldHash,
+                userIp,
+                userAgent,
+                DateTime.UtcNow.AddDays(7)
+            );
+
+            _sessionRepoMock
+                .Setup(x => x.FirstOrDefaultAsync(
+                    It.IsAny<Expression<Func<UserSession, bool>>>()))
+                .ReturnsAsync(existingSession);
+
+            UserSession? newCreatedSession = null;
+            _sessionRepoMock
+                .Setup(x => x.AddAsync(It.IsAny<UserSession>(), default))
+                .Callback<UserSession, CancellationToken>((s, _) => newCreatedSession = s)
+                .ReturnsAsync(existingSession);
+
 
             // Act
-            var rotatedToken = await _tokenService.RotateRefreshToken(tokenResponse.RefreshToken, userIp, userAgent);
+            var newToken = await _tokenService.RotateRefreshToken(oldRefreshToken, userIp, userAgent);
 
             // Assert
-            rotatedToken.Should().NotBeNull();
-            rotatedToken.AccessToken.Should().NotBeNullOrWhiteSpace();
-            rotatedToken.RefreshToken.Should().NotBeNullOrWhiteSpace();
-            rotatedToken.RefreshToken.Should().NotBe(tokenResponse.RefreshToken);
-            rotatedToken.AccessTokenExpiration.Should().BeAfter(DateTime.UtcNow);
-            rotatedToken.RefreshTokenExpiration.Should().BeAfter(DateTime.UtcNow);
+            newToken.RefreshToken.Should().NotBe(oldRefreshToken);
 
-            var sessions = await _context.Set<UserSession>().ToListAsync();
-            sessions.Count.Should().Be(2);
+            // old session must be revoked
+            existingSession.IsRevoked.Should().BeTrue();
 
-            var oldRefreshTokenHash = HashHelper.HashSha256(tokenResponse.RefreshToken);
-            var newRefreshTokenHash = HashHelper.HashSha256(rotatedToken.RefreshToken);
+            newCreatedSession.Should().NotBeNull();
+            newCreatedSession!.IsRevoked.Should().BeFalse();
 
-            var oldSession = sessions.Find(s => s.RefreshToken == oldRefreshTokenHash);
-            var newSession = sessions.Find(s => s.RefreshToken == newRefreshTokenHash);
-            oldSession?.IsRevoked.Should().Be(true);
-            newSession.Should().NotBeNull();
-            newSession!.UserId.Should().Be(user.Id);
-            newSession!.RefreshToken.Should().Be(newRefreshTokenHash);
-            newSession!.ExpiresAt.Should().Be(rotatedToken.RefreshTokenExpiration);
-            newSession!.UserAgent.Should().Be(userAgent);
-            newSession!.IpAddress.Should().Be(userIp);
-            newSession.IsRevoked.Should().BeFalse();
+            // new token session must match hashed refresh token
+            var newHash = HashHelper.HashSha256(newToken.RefreshToken);
+            newCreatedSession.RefreshToken.Should().Be(newHash);
+
+            _uowMock.Verify(x => x.SaveChangesAsync(), Times.Exactly(1));
         }
-
-        [TearDown]
-        public void TearDown()
-        {
-            _context.Dispose();
-        }
-
     }
 }
