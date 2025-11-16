@@ -28,6 +28,7 @@ namespace DailyDN.Infrastructure
             services.AddSingleton<RedisConnectionFactory>();
             services.AddScoped<ICacheService, RedisCacheService>();
             services.AddScoped<IMailService, SmtpMailService>();
+            services.AddScoped<IMailTemplateService, MailTemplateService>();
 
             services.AddSingleton<AsyncPolicy>(sp =>
             {

@@ -18,7 +18,8 @@ namespace DailyDN.Application.Services.Implementations
         ITokenService tokenService,
         IOtpService otpService,
         ISmsService smsService,
-        IMailService mailService
+        IMailService mailService,
+        IMailTemplateService mailTemplateService
     ) : IAuthService
     {
         public async Task<Result> LoginAsync(string email, string password)
@@ -87,11 +88,20 @@ namespace DailyDN.Application.Services.Implementations
                 userRoles: [new(0, (int)RoleEnum.User)]
             );
 
-            // var confirmationLink = $"https://frontend-app/confirm-email?token={user.EmailConfirmationToken}";
+            // var verifyLink = $"https://frontend-app/confirm-email?token={user.EmailConfirmationToken}";
+            // var html = await mailTemplateService.GetTemplateAsync(
+            //     "VerifyEmailTemplate.html",
+            //     new Dictionary<string, string>
+            //     {
+            //         { "VERIFY_LINK", verifyLink }
+            //     }
+            // );
+
             // await mailService.SendEmailAsync(
-            //     toList: [user.Email], 
-            //     subject: "Confirm Your Email", 
-            //     body: confirmationLink);
+            //     toList: [user.Email],
+            //     subject: "Verify Your Email",
+            //     body: html
+            // );
 
             //TODO: email kontrolü için ayrı bir endpoint yazılacak.
             user.MarkEmailVerified();
@@ -157,10 +167,18 @@ namespace DailyDN.Application.Services.Implementations
             await uow.SaveChangesAsync();
 
             var resetLink = $"https://frontend-app/reset-password?token={user.ForgotPasswordToken}";
+            var html = await mailTemplateService.GetTemplateAsync(
+                "ResetPasswordTemplate.html",
+                new Dictionary<string, string>
+                {
+                    { "RESET_LINK", resetLink }
+                }
+            );
+
             await mailService.SendEmailAsync(
-                [user.Email], 
-                "Reset Password", 
-                resetLink
+                [user.Email],
+                "Reset Your Password",
+                html
             );
 
         }
