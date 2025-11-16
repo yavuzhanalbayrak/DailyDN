@@ -50,4 +50,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+app.MapHealthChecks("/health");
+
 await app.RunAsync();

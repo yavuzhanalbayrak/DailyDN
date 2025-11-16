@@ -7,6 +7,7 @@ using DailyDN.Infrastructure.Redis;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Tokens;
 
@@ -77,6 +78,9 @@ namespace DailyDN.API
 
             services.Configure<RedisSettings>(
                 configuration.GetSection("Redis"));
+
+            services.AddHealthChecks();
+
 
             return services;
         }
