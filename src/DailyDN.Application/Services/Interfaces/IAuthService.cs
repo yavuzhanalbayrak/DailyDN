@@ -15,7 +15,7 @@ public interface IAuthService
         CancellationToken cancellationToken
     );
     public Task<TokenResponse?> VerifyOtpAsync(Guid guid, string otp);
-
+    public Task<Result> VerifyEmailAsync(Guid guid);
     public Task<TokenResponse?> RefreshTokenAsync(string refreshToken);
     public Task ForgotPasswordAsync(string email);
     public Task<Result> ResetPasswordAsync(Guid token, string newPassword);

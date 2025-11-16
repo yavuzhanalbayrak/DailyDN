@@ -30,6 +30,11 @@ namespace DailyDN.Application.Services.Implementations
                 return Result.Failure(new Error("Unauthorized", "Email or password is incorrect."));
             }
 
+            if (!user.IsEmailVerified)
+            {
+                return Result.Failure(new Error("EmailNotVerified", "Your email address is not verified. Please verify your email before logging in."));
+            }
+
             var passwordVerificationResult = passwordHasher.VerifyHashedPassword(user, user.PasswordHash, password);
 
             if (passwordVerificationResult != PasswordVerificationResult.Success)
@@ -88,23 +93,22 @@ namespace DailyDN.Application.Services.Implementations
                 userRoles: [new(0, (int)RoleEnum.User)]
             );
 
-            // var verifyLink = $"https://frontend-app/confirm-email?token={user.EmailConfirmationToken}";
-            // var html = await mailTemplateService.GetTemplateAsync(
-            //     "VerifyEmailTemplate.html",
-            //     new Dictionary<string, string>
-            //     {
-            //         { "VERIFY_LINK", verifyLink }
-            //     }
-            // );
+            user.GenerateEmailVerificationToken();
 
-            // await mailService.SendEmailAsync(
-            //     toList: [user.Email],
-            //     subject: "Verify Your Email",
-            //     body: html
-            // );
+            var verifyLink = $"https://frontend-app/confirm-email?token={user.EmailVerificationToken}";
+            var html = await mailTemplateService.GetTemplateAsync(
+                "VerifyEmailTemplate.html",
+                new Dictionary<string, string>
+                {
+                    { "VERIFY_LINK", verifyLink }
+                }
+            );
 
-            //TODO: email kontrolü için ayrı bir endpoint yazılacak.
-            user.MarkEmailVerified();
+            await mailService.SendEmailAsync(
+                toList: [user.Email],
+                subject: "Verify Your Email",
+                body: html
+            );
 
             await uow.Users.AddAsync(user, cancellationToken);
             await uow.SaveChangesAsync();
@@ -196,6 +200,26 @@ namespace DailyDN.Application.Services.Implementations
             await uow.SaveChangesAsync();
 
             return Result.SuccessWithMessage("Password reset successfully.");
+        }
+
+        public async Task<Result> VerifyEmailAsync(Guid guid)
+        {
+            var user = await uow.Users.FirstOrDefaultAsync(u => u.EmailVerificationToken == guid);
+
+            if (user == null)
+                return Result.Failure(new Error("NotFound", "Invalid verification token."));
+
+            try
+            {
+                user.VerifyEmailToken(guid, TimeSpan.FromHours(24));
+                await uow.Users.UpdateAsync(user); ;
+                await uow.SaveChangesAsync();
+                return Result.SuccessWithMessage("Email verified successfully.");
+            }
+            catch (Exception)
+            {
+                return Result.Failure(new Error("Conflict", "Invalid verification token."));
+            }
         }
     }
 }

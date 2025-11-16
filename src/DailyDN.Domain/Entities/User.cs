@@ -27,6 +27,11 @@ namespace DailyDN.Domain.Entities
         public DateTime? ForgotPasswordTokenGeneratedAt { get; set; }
         public bool IsForgotPasswordTokenUsed { get; set; } = false;
 
+        public Guid? EmailVerificationToken { get; private set; }
+        public DateTime? EmailVerificationTokenGeneratedAt { get; private set; }
+        public bool IsEmailVerificationTokenUsed { get; private set; } = false;
+
+
         private User() { }
 
         public User(string name, string surname, string email, string phoneNumber, string passwordHash, string? avatarUrl = null, int id = 0, ICollection<UserRole>? userRoles = null)
@@ -55,11 +60,6 @@ namespace DailyDN.Domain.Entities
                    OtpGeneratedAt.HasValue &&
                    !IsGuidUsed &&
                    OtpGeneratedAt.Value.Add(validFor) > DateTime.UtcNow;
-        }
-
-        public void MarkEmailVerified()
-        {
-            IsEmailVerified = true;
         }
 
         public void UpdateLastLogin()
@@ -122,6 +122,35 @@ namespace DailyDN.Domain.Entities
             ForgotPasswordToken = null;
             ForgotPasswordTokenGeneratedAt = null;
         }
+
+        public void GenerateEmailVerificationToken()
+        {
+            EmailVerificationToken = System.Guid.NewGuid();
+            EmailVerificationTokenGeneratedAt = DateTime.UtcNow;
+            IsEmailVerificationTokenUsed = false;
+        }
+
+        private bool IsEmailVerificationTokenValid(Guid token, TimeSpan validFor)
+        {
+            return EmailVerificationToken.HasValue &&
+                   EmailVerificationToken.Value == token &&
+                   EmailVerificationTokenGeneratedAt.HasValue &&
+                   !IsEmailVerificationTokenUsed &&
+                   EmailVerificationTokenGeneratedAt.Value.Add(validFor) > DateTime.UtcNow;
+        }
+
+        public void VerifyEmailToken(Guid token, TimeSpan validFor)
+        {
+            if (!IsEmailVerificationTokenValid(token, validFor))
+                throw new InvalidOperationException("Invalid or expired email verification token.");
+
+            IsEmailVerified = true;
+            IsEmailVerificationTokenUsed = true;
+            EmailVerificationToken = null;
+            EmailVerificationTokenGeneratedAt = null;
+        }
+
+
 
 
 

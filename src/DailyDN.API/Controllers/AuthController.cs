@@ -4,6 +4,7 @@ using DailyDN.Application.Features.Auth.Login;
 using DailyDN.Application.Features.Auth.RefreshToken;
 using DailyDN.Application.Features.Auth.Register;
 using DailyDN.Application.Features.Auth.ResetPassword;
+using DailyDN.Application.Features.Auth.VerifyEmail;
 using DailyDN.Application.Features.Auth.VerifyOtp;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -87,5 +88,18 @@ namespace DailyDN.API.Controllers
             var result = await _mediator.Send(command);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
+
+        [Produces("application/json", "text/plain")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Result))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Result))]
+        [HttpPost("verify-email")]
+        [MapToApiVersion("1.0")]
+        [AllowAnonymous]
+        public async Task<IActionResult> VerifyEmail([FromBody] VerifyEmailCommand command)
+        {
+            var result = await _mediator.Send(command);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
     }
+    
 }
