@@ -29,6 +29,7 @@ namespace DailyDN.Infrastructure
             services.AddScoped<ICacheService, RedisCacheService>();
             services.AddScoped<IMailService, SmtpMailService>();
             services.AddScoped<IMailTemplateService, MailTemplateService>();
+            services.AddScoped<IFileStorageService, FileStorageService>();
 
             services.AddSingleton<AsyncPolicy>(sp =>
             {

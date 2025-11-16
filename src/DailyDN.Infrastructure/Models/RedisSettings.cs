@@ -1,4 +1,4 @@
-namespace DailyDN.Infrastructure.Redis
+namespace DailyDN.Infrastructure.Models
 {
     public class RedisSettings
     {

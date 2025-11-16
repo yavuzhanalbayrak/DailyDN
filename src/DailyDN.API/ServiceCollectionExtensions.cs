@@ -3,11 +3,10 @@ using System.Text;
 using DailyDN.API.Middleware;
 using DailyDN.Application;
 using DailyDN.Infrastructure.Contexts;
-using DailyDN.Infrastructure.Redis;
+using DailyDN.Infrastructure.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Tokens;
 

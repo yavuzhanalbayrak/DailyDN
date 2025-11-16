@@ -1,3 +1,4 @@
+using DailyDN.Infrastructure.Models;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 

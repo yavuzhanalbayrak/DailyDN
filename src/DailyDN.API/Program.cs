@@ -20,6 +20,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
+builder.Services.Configure<FileStorageSettings>(builder.Configuration.GetSection("FileStorage"));
 
 builder.Host.UseSerilog((context, services, configuration) =>
 {
