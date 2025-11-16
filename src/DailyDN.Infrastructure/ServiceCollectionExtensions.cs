@@ -27,6 +27,8 @@ namespace DailyDN.Infrastructure
             services.AddScoped<ISmsProvider, FakeSmsProvider>();
             services.AddSingleton<RedisConnectionFactory>();
             services.AddScoped<ICacheService, RedisCacheService>();
+            services.AddScoped<IMailService, SmtpMailService>();
+
             services.AddSingleton<AsyncPolicy>(sp =>
             {
                 var logger = sp.GetRequiredService<ILogger<RedisCacheService>>();

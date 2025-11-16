@@ -3,6 +3,7 @@ using DailyDN.API.Middleware;
 using DailyDN.Application;
 using DailyDN.Infrastructure;
 using DailyDN.Infrastructure.Models;
+using DailyDN.Infrastructure.Services.Impl;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +19,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
 
 builder.Host.UseSerilog((context, services, configuration) =>
 {

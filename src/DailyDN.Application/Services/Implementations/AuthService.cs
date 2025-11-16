@@ -17,7 +17,8 @@ namespace DailyDN.Application.Services.Implementations
         IHttpContextAccessor httpContextAccessor,
         ITokenService tokenService,
         IOtpService otpService,
-        ISmsService smsService
+        ISmsService smsService,
+        IMailService mailService
     ) : IAuthService
     {
         public async Task<Result> LoginAsync(string email, string password)
@@ -86,6 +87,12 @@ namespace DailyDN.Application.Services.Implementations
                 userRoles: [new(0, (int)RoleEnum.User)]
             );
 
+            // var confirmationLink = $"https://frontend-app/confirm-email?token={user.EmailConfirmationToken}";
+            // await mailService.SendEmailAsync(
+            //     toList: [user.Email], 
+            //     subject: "Confirm Your Email", 
+            //     body: confirmationLink);
+
             //TODO: email kontrolü için ayrı bir endpoint yazılacak.
             user.MarkEmailVerified();
 
@@ -149,9 +156,13 @@ namespace DailyDN.Application.Services.Implementations
             await uow.Users.UpdateAsync(user);
             await uow.SaveChangesAsync();
 
-            //TODO: Email servisi yazılacak.
-            // var resetLink = $"https://frontend-app/reset-password?token={user.ForgotPasswordToken}";
-            // await emailService.SendPasswordResetEmailAsync(user.Email, resetLink);
+            var resetLink = $"https://frontend-app/reset-password?token={user.ForgotPasswordToken}";
+            await mailService.SendEmailAsync(
+                [user.Email], 
+                "Reset Password", 
+                resetLink
+            );
+
         }
 
         public async Task<Result> ResetPasswordAsync(Guid token, string newPassword)
