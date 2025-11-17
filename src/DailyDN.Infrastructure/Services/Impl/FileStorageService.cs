@@ -46,5 +46,37 @@ namespace DailyDN.Infrastructure.Services.Impl
             }
             return savedFiles;
         }
+
+        public async Task<IEnumerable<string>> ReplaceFilesAsync(string folderPath, IEnumerable<IFormFile> newFiles)
+        {
+            var targetFolder = Path.Combine(_basePath, folderPath);
+
+            if (Directory.Exists(targetFolder))
+                Directory.Delete(targetFolder, true);
+
+            Directory.CreateDirectory(targetFolder);
+
+            return await SaveFilesAsync(folderPath, newFiles, overwrite: true);
+        }
+
+        public async Task<string> SaveProfilePhotoAsync(string userId, IFormFile file)
+        {
+            var folderPath = $"profiles/{userId}";
+            var targetFolder = Path.Combine(_basePath, folderPath);
+
+            if (Directory.Exists(targetFolder))
+                Directory.Delete(targetFolder, recursive: true);
+
+            Directory.CreateDirectory(targetFolder);
+
+            var fileName = "profile.jpg";
+            var filePath = Path.Combine(targetFolder, fileName);
+
+            await using var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write);
+            await file.CopyToAsync(stream);
+
+            return $"{_baseUrl}/{folderPath}/{fileName}".Replace("\\", "/");
+        }
+
     }
 }

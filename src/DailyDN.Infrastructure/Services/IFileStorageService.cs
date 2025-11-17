@@ -23,5 +23,17 @@ namespace DailyDN.Infrastructure.Services
         /// Checks if the specified file exists.
         /// </summary>
         bool FileExists(string filePath);
+
+        /// <summary>
+        /// Saves multiple files to the specified folder path and deletes the old files.
+        /// </summary>
+        Task<IEnumerable<string>> ReplaceFilesAsync(string folderPath, IEnumerable<IFormFile> newFiles);
+
+        /// <summary>
+        /// Saves the profile photo of the user.
+        /// </summary>
+        Task<string> SaveProfilePhotoAsync(string userId, IFormFile file);
+
+
     }
 }
