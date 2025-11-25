@@ -2,19 +2,16 @@ using AutoMapper;
 using DailyDN.Application.Common.Model;
 using DailyDN.Application.Messaging;
 using DailyDN.Application.Services.Interfaces;
-using Microsoft.Extensions.Logging;
 
 namespace DailyDN.Application.Features.Auth.VerifyOtp
 {
     public class VerifyOtpCommandHandler(
         IMapper mapper,
-        ILogger<VerifyOtpCommandHandler> logger,
         IAuthService authService
     ) : ICommandHandler<VerifyOtpCommand, VerifyOtpCommandResponse>
     {
         public async Task<Result<VerifyOtpCommandResponse>> Handle(VerifyOtpCommand request, CancellationToken cancellationToken)
         {
-            logger.LogInformation("Otp service running.");
 
             var token = await authService.VerifyOtpAsync(request.Guid, request.Otp);
 

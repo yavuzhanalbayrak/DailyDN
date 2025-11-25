@@ -10,7 +10,6 @@ namespace DailyDN.Application.Features.Users.GetUserById
     {
         public async Task<Result<GetUserByIdQueryResponse>> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
         {
-            logger.LogInformation("Fetching user details. UserId: {UserId}", request.Id);
             var user = await userService.GetByIdAsync(request.Id);
             if (user == null)
             {

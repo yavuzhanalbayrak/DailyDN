@@ -9,7 +9,6 @@ namespace DailyDN.Application.Features.Users.UpdateProfilePhoto
         public async Task<Result> Handle(UpdateProfilePhotoCommand request, CancellationToken cancellationToken)
         {
             return await userService.UpdateProfilePhoto(request.File);
-        
         }
     }
 }
