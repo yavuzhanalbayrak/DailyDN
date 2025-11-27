@@ -32,9 +32,9 @@ namespace DailyDN.Domain.Entities
         public bool IsEmailVerificationTokenUsed { get; private set; } = false;
 
 
-        private User() { }
+        public User() { }
 
-        public User(string name, string surname, string email, string phoneNumber, string passwordHash, string? avatarUrl = null, int id = 0, ICollection<UserRole>? userRoles = null)
+        public User(string name, string surname, string email, string phoneNumber, string passwordHash, string? avatarUrl = null, int id = 0, ICollection<UserRole>? userRoles = null, bool isEmailVerified = false)
         {
             Id = id;
             Name = name;
@@ -44,6 +44,7 @@ namespace DailyDN.Domain.Entities
             PasswordHash = passwordHash;
             AvatarUrl = avatarUrl;
             UserRoles = userRoles ?? [];
+            IsEmailVerified = isEmailVerified;
         }
 
         public void SetOtp(string code, Guid guid)
