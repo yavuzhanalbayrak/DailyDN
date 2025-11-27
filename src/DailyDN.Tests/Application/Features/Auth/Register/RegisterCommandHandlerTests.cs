@@ -4,9 +4,6 @@ using DailyDN.Application.Services.Interfaces;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
-using NUnit.Framework;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace DailyDN.Tests.Application.Features.Auth.Register
 {
@@ -14,15 +11,13 @@ namespace DailyDN.Tests.Application.Features.Auth.Register
     public class RegisterCommandHandlerTests
     {
         private Mock<IAuthService> _authServiceMock = null!;
-        private Mock<ILogger<RegisterCommandHandler>> _loggerMock = null!;
         private RegisterCommandHandler _handler = null!;
 
         [SetUp]
         public void SetUp()
         {
             _authServiceMock = new Mock<IAuthService>();
-            _loggerMock = new Mock<ILogger<RegisterCommandHandler>>();
-            _handler = new RegisterCommandHandler(_authServiceMock.Object, _loggerMock.Object);
+            _handler = new RegisterCommandHandler(_authServiceMock.Object);
         }
 
         [Test]
@@ -56,9 +51,8 @@ namespace DailyDN.Tests.Application.Features.Auth.Register
                 command.PhoneNumber,
                 command.Password,
                 It.IsAny<CancellationToken>()), Times.Once);
-
-            _loggerMock.VerifyLog(LogLevel.Information, $"User registering. Email: {command.Email}", Times.Once());
         }
+
         [Test]
         public async Task Handle_ShouldReturnFailure_WhenRegistrationFails()
         {
@@ -92,8 +86,6 @@ namespace DailyDN.Tests.Application.Features.Auth.Register
                 command.PhoneNumber,
                 command.Password,
                 It.IsAny<CancellationToken>()), Times.Once);
-
-            _loggerMock.VerifyLog(LogLevel.Information, $"User registering. Email: {command.Email}", Times.Once());
         }
     }
 

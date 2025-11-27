@@ -16,8 +16,6 @@ namespace DailyDN.Tests.Application.Features.Posts.GetList
     {
         private Mock<IPostsService> _postsServiceMock = null!;
         private Mock<IMapper> _mapperMock = null!;
-        private Mock<ILogger<GetPostListQueryHandler>> _loggerMock = null!;
-        private Mock<IAuthenticatedUser> _authenticatedUserMock = null!;
         private GetPostListQueryHandler _handler = null!;
 
         [SetUp]
@@ -25,14 +23,10 @@ namespace DailyDN.Tests.Application.Features.Posts.GetList
         {
             _postsServiceMock = new Mock<IPostsService>();
             _mapperMock = new Mock<IMapper>();
-            _loggerMock = new Mock<ILogger<GetPostListQueryHandler>>();
-            _authenticatedUserMock = new Mock<IAuthenticatedUser>();
 
             _handler = new GetPostListQueryHandler(
                 _postsServiceMock.Object,
-                _mapperMock.Object,
-                _loggerMock.Object,
-                _authenticatedUserMock.Object
+                _mapperMock.Object
             );
         }
 
@@ -78,17 +72,6 @@ namespace DailyDN.Tests.Application.Features.Posts.GetList
 
             _postsServiceMock.Verify(s => s.GetListAsync(query.Page, query.PageSize), Times.Once);
             _mapperMock.Verify(m => m.Map<GetPostListQueryResponse>(posts), Times.Once);
-
-            _loggerMock.Verify(
-                x => x.Log(
-                    LogLevel.Information,
-                    It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("Getting Posts")),
-                    null,
-                    It.IsAny<Func<It.IsAnyType, Exception?, string>>()
-                ),
-                Times.Once
-            );
         }
     }
 }

@@ -11,15 +11,13 @@ namespace DailyDN.Tests.Application.Features.Auth.Login
     public class LoginCommandHandlerTests
     {
         private Mock<IAuthService> _authServiceMock = null!;
-        private Mock<ILogger<LoginCommandHandler>> _loggerMock = null!;
         private LoginCommandHandler _handler = null!;
 
         [SetUp]
         public void SetUp()
         {
             _authServiceMock = new Mock<IAuthService>();
-            _loggerMock = new Mock<ILogger<LoginCommandHandler>>();
-            _handler = new LoginCommandHandler(_authServiceMock.Object, _loggerMock.Object);
+            _handler = new LoginCommandHandler(_authServiceMock.Object);
         }
 
         [Test]
@@ -41,7 +39,6 @@ namespace DailyDN.Tests.Application.Features.Auth.Login
             result.Message.Should().Be("Login successful");
 
             _authServiceMock.Verify(s => s.LoginAsync(command.Email, command.Password), Times.Once);
-            _loggerMock.VerifyLog(LogLevel.Information, "User logging in. Email: test@example.com", Times.Once());
         }
 
         [Test]
@@ -64,7 +61,6 @@ namespace DailyDN.Tests.Application.Features.Auth.Login
             result.Error.Message.Should().Be("Invalid credentials.");
 
             _authServiceMock.Verify(s => s.LoginAsync(command.Email, command.Password), Times.Once);
-            _loggerMock.VerifyLog(LogLevel.Information, "User logging in. Email: wrong@example.com", Times.Once());
         }
     }
 

@@ -1,7 +1,5 @@
 using DailyDN.Application.Features.Auth.ForgotPassword;
-using FluentAssertions;
 using FluentValidation.TestHelper;
-using NUnit.Framework;
 
 namespace DailyDN.Tests.Application.Features.Auth.ForgotPassword
 {

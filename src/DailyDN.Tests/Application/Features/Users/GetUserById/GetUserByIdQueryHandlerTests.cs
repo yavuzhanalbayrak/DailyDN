@@ -1,15 +1,10 @@
-using System.Threading;
-using System.Threading.Tasks;
 using AutoMapper;
-using DailyDN.Application.Common.Model;
 using DailyDN.Application.Features.Users.GetUserById;
-using DailyDN.Application.Features.Users.GetUserById.Responses;
 using DailyDN.Application.Services.Interfaces;
 using DailyDN.Domain.Entities;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
-using NUnit.Framework;
 
 namespace DailyDN.Tests.Application.Features.Users.GetUserById
 {
@@ -77,17 +72,6 @@ namespace DailyDN.Tests.Application.Features.Users.GetUserById
 
             _userServiceMock.Verify(s => s.GetByIdAsync(query.Id), Times.Once);
             _mapperMock.Verify(m => m.Map<GetUserByIdQueryResponse>(user), Times.Once);
-
-            _loggerMock.Verify(
-                l => l.Log(
-                    LogLevel.Information,
-                    It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((o, _) => o.ToString()!.Contains("Fetching user details")),
-                    null,
-                    It.IsAny<Func<It.IsAnyType, Exception?, string>>()
-                ),
-                Times.Once
-            );
         }
 
         [Test]

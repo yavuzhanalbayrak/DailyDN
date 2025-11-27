@@ -1,4 +1,3 @@
-using DailyDN.Application.Common.Model;
 using DailyDN.Application.Features.Auth.ForgotPassword;
 using DailyDN.Application.Services.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -11,17 +10,14 @@ namespace DailyDN.Tests.Application.Features.Auth.ForgotPassword
     public class ForgotPasswordCommandHandlerTests
     {
         private Mock<IAuthService> _authServiceMock = null!;
-        private Mock<ILogger<ForgotPasswordCommandHandler>> _loggerMock = null!;
         private ForgotPasswordCommandHandler _handler = null!;
 
         [SetUp]
         public void SetUp()
         {
             _authServiceMock = new Mock<IAuthService>();
-            _loggerMock = new Mock<ILogger<ForgotPasswordCommandHandler>>();
 
             _handler = new ForgotPasswordCommandHandler(
-                _loggerMock.Object,
                 _authServiceMock.Object
             );
         }

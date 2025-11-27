@@ -14,8 +14,6 @@ namespace DailyDN.Tests.Application.Features.Posts.Add
     {
         private Mock<IMapper> _mapperMock = null!;
         private Mock<IPostsService> _postsServiceMock = null!;
-        private Mock<ILogger<AddPostCommandHandler>> _loggerMock = null!;
-        private Mock<IAuthenticatedUser> _authenticatedUserMock = null!;
         private AddPostCommandHandler _handler = null!;
 
         [SetUp]
@@ -23,14 +21,10 @@ namespace DailyDN.Tests.Application.Features.Posts.Add
         {
             _mapperMock = new Mock<IMapper>();
             _postsServiceMock = new Mock<IPostsService>();
-            _loggerMock = new Mock<ILogger<AddPostCommandHandler>>();
-            _authenticatedUserMock = new Mock<IAuthenticatedUser>();
 
             _handler = new AddPostCommandHandler(
                 _mapperMock.Object,
-                _postsServiceMock.Object,
-                _loggerMock.Object,
-                _authenticatedUserMock.Object
+                _postsServiceMock.Object
             );
         }
 
@@ -61,16 +55,6 @@ namespace DailyDN.Tests.Application.Features.Posts.Add
 
             _mapperMock.Verify(m => m.Map<Post>(command), Times.Once);
             _postsServiceMock.Verify(s => s.AddAsync(post, It.IsAny<CancellationToken>()), Times.Once);
-            _loggerMock.Verify(
-                x => x.Log(
-                    LogLevel.Information,
-                    It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("Adding Post")),
-                    null,
-                    It.IsAny<Func<It.IsAnyType, Exception?, string>>()
-                ),
-                Times.Once
-            );
         }
     }
 }

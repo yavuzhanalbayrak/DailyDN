@@ -11,15 +11,13 @@ namespace DailyDN.Tests.Application.Features.Auth.ResetPassword
     public class ResetPasswordCommandHandlerTests
     {
         private Mock<IAuthService> _authServiceMock = null!;
-        private Mock<ILogger<ResetPasswordCommandHandler>> _loggerMock = null!;
         private ResetPasswordCommandHandler _handler = null!;
 
         [SetUp]
         public void SetUp()
         {
             _authServiceMock = new Mock<IAuthService>();
-            _loggerMock = new Mock<ILogger<ResetPasswordCommandHandler>>();
-            _handler = new ResetPasswordCommandHandler(_authServiceMock.Object, _loggerMock.Object);
+            _handler = new ResetPasswordCommandHandler(_authServiceMock.Object);
         }
 
         [Test]

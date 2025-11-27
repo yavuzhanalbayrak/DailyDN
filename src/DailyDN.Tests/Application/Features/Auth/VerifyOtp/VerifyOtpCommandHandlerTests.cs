@@ -15,7 +15,6 @@ namespace DailyDN.Tests.Application.Features.Auth.VerifyOtp
     {
         private Mock<IAuthService> _authServiceMock = null!;
         private Mock<IMapper> _mapperMock = null!;
-        private Mock<ILogger<VerifyOtpCommandHandler>> _loggerMock = null!;
         private VerifyOtpCommandHandler _handler = null!;
 
         [SetUp]
@@ -23,11 +22,9 @@ namespace DailyDN.Tests.Application.Features.Auth.VerifyOtp
         {
             _authServiceMock = new Mock<IAuthService>();
             _mapperMock = new Mock<IMapper>();
-            _loggerMock = new Mock<ILogger<VerifyOtpCommandHandler>>();
 
             _handler = new VerifyOtpCommandHandler(
                 _mapperMock.Object,
-                _loggerMock.Object,
                 _authServiceMock.Object
             );
         }
