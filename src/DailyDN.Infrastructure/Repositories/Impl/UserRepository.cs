@@ -17,12 +17,12 @@ namespace DailyDN.Infrastructure.Repositories.Impl
 
         public async Task<User?> GetUserWithRolesAndClaimsAsync(int id)
         {
-            return await context.Set<User>()
+            return await _context.Set<User>()
                 .Include(u => u.UserRoles)
                     .ThenInclude(ur => ur.Role)
                         .ThenInclude(r => r.RoleClaims)
                             .ThenInclude(rc => rc.Claim)
-                .FirstAsync(u => u.Id == id);
+                .FirstOrDefaultAsync(u => u.Id == id);
         }
     }
 }
