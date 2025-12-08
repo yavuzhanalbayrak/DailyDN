@@ -1,14 +1,13 @@
 using DailyDN.API.Middleware.Model;
 using DailyDN.Application.Common.Model;
 using DailyDN.Application.Exceptions;
-using DailyDN.Infrastructure.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using ValidationException = FluentValidation.ValidationException;
 
 namespace DailyDN.API.Middleware
 {
-    public class ErrorHandlerMiddleware(ILogger<ErrorHandlerMiddleware> _logger, IAuthenticatedUser _authenticatedUser) : IMiddleware
+    public class ErrorHandlerMiddleware(ILogger<ErrorHandlerMiddleware> _logger) : IMiddleware
     {
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
@@ -18,11 +17,11 @@ namespace DailyDN.API.Middleware
             }
             catch (Exception ex)
             {
-                await HandleExceptionAsync(ex, context, _logger, _authenticatedUser);
+                await HandleExceptionAsync(ex, context, _logger);
             }
         }
 
-        private static async Task HandleExceptionAsync(Exception ex, HttpContext context, ILogger<ErrorHandlerMiddleware> logger, IAuthenticatedUser authenticatedUser)
+        private static async Task HandleExceptionAsync(Exception ex, HttpContext context, ILogger<ErrorHandlerMiddleware> logger)
         {
             switch (ex)
             {

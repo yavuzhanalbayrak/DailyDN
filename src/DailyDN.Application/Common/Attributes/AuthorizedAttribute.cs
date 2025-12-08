@@ -14,13 +14,12 @@ namespace DailyDN.Application.Common.Attributes
         {
             var authenticatedUser = context.HttpContext.RequestServices.GetService<IAuthenticatedUser>();
 
-            if (authenticatedUser.Claims is null || authenticatedUser.Claims.Count == 0)
+            if (authenticatedUser?.Claims is null || authenticatedUser.Claims.Count == 0)
             {
                 throw new ApiAuthenticationException($"Uygulama Yöneticisinden Yetki Tanımlaması Yapmasını İsteyeniz.")
                 {
                     FailCode = FailCode.InvalidClaim,
                     StatusCode = 403
-
                 };
             }
 

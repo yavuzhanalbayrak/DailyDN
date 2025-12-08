@@ -1,6 +1,6 @@
 namespace DailyDN.Domain.Enums
 {
-    public enum RoleEnum
+    public enum Role
     {
         Admin = 1,
         User

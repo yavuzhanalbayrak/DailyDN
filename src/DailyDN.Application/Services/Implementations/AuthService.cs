@@ -82,16 +82,17 @@ namespace DailyDN.Application.Services.Implementations
                 return Result.Failure(new Error("Conflict", "This phone number is already registered."));
             }
 
-            var hashedPassword = passwordHasher.HashPassword(null, password);
-
             var user = new User(
                 name: name,
                 surname: surname,
                 email: email,
                 phoneNumber: phoneNumber,
-                passwordHash: hashedPassword,
-                userRoles: [new(0, (int)RoleEnum.User)]
+                passwordHash: "",
+                userRoles: [new(0, (int)Domain.Enums.Role.User)]
             );
+
+            var hashedPassword = passwordHasher.HashPassword(user, password);
+            user.SetPassword(hashedPassword);
 
             user.GenerateEmailVerificationToken();
 
@@ -193,7 +194,7 @@ namespace DailyDN.Application.Services.Implementations
             if (user is null || !user.IsPasswordResetTokenValid(token, TimeSpan.FromMinutes(15)))
                 return Result.Failure(new Error("Token.Invalid", "Token is invalid or has expired."));
 
-            var hashedPassword = passwordHasher.HashPassword(null, newPassword);
+            var hashedPassword = passwordHasher.HashPassword(user, newPassword);
             user.ResetPassword(hashedPassword);
 
             await uow.Users.UpdateAsync(user);
@@ -212,7 +213,7 @@ namespace DailyDN.Application.Services.Implementations
             try
             {
                 user.VerifyEmailToken(guid, TimeSpan.FromHours(24));
-                await uow.Users.UpdateAsync(user); ;
+                await uow.Users.UpdateAsync(user);
                 await uow.SaveChangesAsync();
                 return Result.SuccessWithMessage("Email verified successfully.");
             }

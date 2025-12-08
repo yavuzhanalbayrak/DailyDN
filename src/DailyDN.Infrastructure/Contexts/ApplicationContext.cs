@@ -8,7 +8,6 @@ namespace DailyDN.Infrastructure.Contexts
     public abstract class ApplicationContext(DbContextOptions options, ILogger<DailyDNDbContext> logger, IAuthenticatedUser currentUser) : DbContext(options), IApplicationContext
     {
         private readonly ILogger<DailyDNDbContext> _logger = logger;
-        // Authenticated user
         private readonly int _currentUser = currentUser.UserId;
 
         public override int SaveChanges()
@@ -64,7 +63,6 @@ namespace DailyDN.Infrastructure.Contexts
             }
         }
 
-        // Helper method for implementing global query filters in derived classes
         protected static void ApplyGlobalFilters<T>(ModelBuilder builder) where T : Entity
         {
             builder.Entity<T>().HasQueryFilter(e => !e.IsDeleted);

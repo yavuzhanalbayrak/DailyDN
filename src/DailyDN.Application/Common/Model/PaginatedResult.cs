@@ -11,11 +11,11 @@
         /// <param name="pageSize">The number of data per page.</param>
         /// <param name="error">The error that occurred.</param>
         private PaginatedResult(
-            T data,
+            T? data,
             int totalItems,
             int currentPage,
             int pageSize,
-            Error error) : base(data != null && error == null, error)
+            Error? error) : base(error == null, error)
         {
             if (IsSuccess)
             {
@@ -48,7 +48,7 @@
         /// <summary>
         /// Gets the paginated data.
         /// </summary>
-        public T Data { get; }
+        public T? Data { get; }
 
         /// <summary>
         /// Gets the total number of data across all pages.
