@@ -1,9 +1,10 @@
 namespace DailyDN.Infrastructure.Models
 {
-    public class TokenResponse
+    public class TokenResponse(string accessToken, string refreshTokenHash, DateTime accessTokenExpiration, DateTime refreshTokenExpiration)
     {
-        public string Token { get; set; } = string.Empty;
-        public DateTime Expiration { get; set; }
-        public string RefreshToken { get; set; } = string.Empty;
+        public string AccessToken { get; set; } = accessToken;
+        public DateTime AccessTokenExpiration { get; set; } = accessTokenExpiration;
+        public DateTime RefreshTokenExpiration { get; set; } = refreshTokenExpiration;
+        public string RefreshTokenHash { get; set; } = refreshTokenHash;
     }
 }

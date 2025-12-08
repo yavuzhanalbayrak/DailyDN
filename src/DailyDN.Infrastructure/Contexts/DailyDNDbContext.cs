@@ -42,6 +42,7 @@ namespace DailyDN.Infrastructure.Contexts
             modelBuilder.SeedClaims();
             modelBuilder.SeedRoleClaims();
             modelBuilder.SeedRoles();
+            modelBuilder.SeedUserRoles();
 
             ApplyGlobalFilters<User>(modelBuilder);
             ApplyGlobalFilters<Claim>(modelBuilder);

@@ -18,11 +18,19 @@ services:
       dockerfile: DailyDN.API/Dockerfile
     container_name: dailydn.api
     environment:
-      - ASPNETCORE_ENVIRONMENT=Test
-      - ConnectionStrings__DefaultConnection=Server=mssql,1433;Database=DailyDNDB;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;
-      - Redis__ConnectionString=redis:6379
-      - MongoSettings__ConnectionString=mongodb://mongo:27017
-      - MongoSettings__DatabaseName=DailyDN
+      ASPNETCORE_ENVIRONMENT: Test
+      ConnectionStrings__DefaultConnection: "Server=mssql,1433;Database=DailyDNDB;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;"
+      Redis__ConnectionString: ${REDIS_CONNECTION}
+      MongoSettings__ConnectionString: ${MONGO_CONNECTION}
+      MongoSettings__DatabaseName: ${MONGO_DB_NAME}
+
+      # SMTP SETTINGS (APP READS FROM IOptions<SmtpSettings>)
+      SmtpSettings__Host: ${SMTP_HOST}
+      SmtpSettings__Port: ${SMTP_PORT}
+      SmtpSettings__User: ${SMTP_USER}
+      SmtpSettings__Password: ${SMTP_PASSWORD}
+      SmtpSettings__EnableSsl: ${SMTP_SSL}
+
     depends_on:
       - mssql
       - redis

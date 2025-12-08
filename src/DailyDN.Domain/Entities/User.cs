@@ -7,6 +7,7 @@ namespace DailyDN.Domain.Entities
         public string? AvatarUrl { get; private set; }
 
         public string Email { get; private set; } = null!;
+        public string PhoneNumber { get; private set; } = null!;
         public string PasswordHash { get; private set; } = null!;
 
         public string? OtpCode { get; private set; }
@@ -22,16 +23,28 @@ namespace DailyDN.Domain.Entities
         public ICollection<Post> Posts { get; private set; } = [];
         public ICollection<UserChat> UserChats { get; set; } = [];
 
-        private User() { }
+        public Guid? ForgotPasswordToken { get; set; }
+        public DateTime? ForgotPasswordTokenGeneratedAt { get; set; }
+        public bool IsForgotPasswordTokenUsed { get; set; } = false;
 
-        public User(string name, string surname, string email, string passwordHash, string? avatarUrl = null, int id = 0)
+        public Guid? EmailVerificationToken { get; private set; }
+        public DateTime? EmailVerificationTokenGeneratedAt { get; private set; }
+        public bool IsEmailVerificationTokenUsed { get; private set; } = false;
+
+
+        public User() { }
+
+        public User(string name, string surname, string email, string phoneNumber, string passwordHash, string? avatarUrl = null, int id = 0, ICollection<UserRole>? userRoles = null, bool isEmailVerified = false)
         {
             Id = id;
             Name = name;
             Surname = surname;
             Email = email;
+            PhoneNumber = phoneNumber;
             PasswordHash = passwordHash;
             AvatarUrl = avatarUrl;
+            UserRoles = userRoles ?? [];
+            IsEmailVerified = isEmailVerified;
         }
 
         public void SetOtp(string code, Guid guid)
@@ -48,11 +61,6 @@ namespace DailyDN.Domain.Entities
                    OtpGeneratedAt.HasValue &&
                    !IsGuidUsed &&
                    OtpGeneratedAt.Value.Add(validFor) > DateTime.UtcNow;
-        }
-
-        public void MarkEmailVerified()
-        {
-            IsEmailVerified = true;
         }
 
         public void UpdateLastLogin()
@@ -91,6 +99,62 @@ namespace DailyDN.Domain.Entities
         }
 
         public string FullName => $"{Name} {Surname}";
+
+        public void GeneratePasswordResetToken()
+        {
+            ForgotPasswordToken = System.Guid.NewGuid();
+            ForgotPasswordTokenGeneratedAt = DateTime.UtcNow;
+            IsForgotPasswordTokenUsed = false;
+        }
+
+        public bool IsPasswordResetTokenValid(Guid token, TimeSpan validFor)
+        {
+            return ForgotPasswordToken.HasValue &&
+                   ForgotPasswordToken.Value == token &&
+                   ForgotPasswordTokenGeneratedAt.HasValue &&
+                   !IsForgotPasswordTokenUsed &&
+                   ForgotPasswordTokenGeneratedAt.Value.Add(validFor) > DateTime.UtcNow;
+        }
+
+        public void ResetPassword(string newHashedPassword)
+        {
+            PasswordHash = newHashedPassword;
+            IsForgotPasswordTokenUsed = true;
+            ForgotPasswordToken = null;
+            ForgotPasswordTokenGeneratedAt = null;
+        }
+
+        public void GenerateEmailVerificationToken()
+        {
+            EmailVerificationToken = System.Guid.NewGuid();
+            EmailVerificationTokenGeneratedAt = DateTime.UtcNow;
+            IsEmailVerificationTokenUsed = false;
+        }
+
+        private bool IsEmailVerificationTokenValid(Guid token, TimeSpan validFor)
+        {
+            return EmailVerificationToken.HasValue &&
+                   EmailVerificationToken.Value == token &&
+                   EmailVerificationTokenGeneratedAt.HasValue &&
+                   !IsEmailVerificationTokenUsed &&
+                   EmailVerificationTokenGeneratedAt.Value.Add(validFor) > DateTime.UtcNow;
+        }
+
+        public void VerifyEmailToken(Guid token, TimeSpan validFor)
+        {
+            if (!IsEmailVerificationTokenValid(token, validFor))
+                throw new InvalidOperationException("Invalid or expired email verification token.");
+
+            IsEmailVerified = true;
+            IsEmailVerificationTokenUsed = true;
+            EmailVerificationToken = null;
+            EmailVerificationTokenGeneratedAt = null;
+        }
+
+
+
+
+
 
     }
 

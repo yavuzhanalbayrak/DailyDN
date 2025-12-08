@@ -406,6 +406,18 @@ namespace DailyDN.Infrastructure.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
+                    b.Property<Guid?>("EmailVerificationToken")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("EmailVerificationTokenGeneratedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("ForgotPasswordToken")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ForgotPasswordTokenGeneratedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<Guid?>("Guid")
                         .HasColumnType("uniqueidentifier");
 
@@ -414,10 +426,16 @@ namespace DailyDN.Infrastructure.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
+                    b.Property<bool>("IsEmailVerificationTokenUsed")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsEmailVerified")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
+
+                    b.Property<bool>("IsForgotPasswordTokenUsed")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsGuidUsed")
                         .HasColumnType("bit");
@@ -438,6 +456,10 @@ namespace DailyDN.Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -468,10 +490,13 @@ namespace DailyDN.Infrastructure.Migrations
                             CreatedBy = 0,
                             Email = "johndoe@example.com",
                             IsDeleted = false,
-                            IsEmailVerified = false,
+                            IsEmailVerificationTokenUsed = false,
+                            IsEmailVerified = true,
+                            IsForgotPasswordTokenUsed = false,
                             IsGuidUsed = false,
                             Name = "john",
-                            PasswordHash = "hashpassword",
+                            PasswordHash = "AQAAAAIAAYagAAAAELAUs+nJPSlymbpaEf2On5XTsZilCbc+jpMAqhini8fYQU/yeTEKm1diq/A5/pcfWw==",
+                            PhoneNumber = "05002001020",
                             Surname = "doe"
                         });
                 });
@@ -566,6 +591,17 @@ namespace DailyDN.Infrastructure.Migrations
                         .HasFilter("[IsDeleted] = 0");
 
                     b.ToTable("UserRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedBy = 0,
+                            IsDeleted = false,
+                            RoleId = 2,
+                            UserId = 1
+                        });
                 });
 
             modelBuilder.Entity("DailyDN.Domain.Entities.UserSession", b =>
@@ -602,7 +638,7 @@ namespace DailyDN.Infrastructure.Migrations
                     b.Property<bool>("IsRevoked")
                         .HasColumnType("bit");
 
-                    b.Property<string>("RefreshToken")
+                    b.Property<string>("RefreshTokenHash")
                         .IsRequired()
                         .HasMaxLength(512)
                         .HasColumnType("nvarchar(512)");
@@ -623,7 +659,7 @@ namespace DailyDN.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RefreshToken");
+                    b.HasIndex("RefreshTokenHash");
 
                     b.HasIndex("UserId");
 

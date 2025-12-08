@@ -82,7 +82,7 @@ namespace DailyDN.Infrastructure.Repositories
             }
             else
                 query = query.OrderByDescending(e => e.CreatedAt);
-            
+
             var items = await query
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -149,6 +149,54 @@ namespace DailyDN.Infrastructure.Repositories
             return await query.ToListAsync();
         }
 
+        public virtual async Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate)
+        {
+            _logger.LogInformation("Getting entities of type {EntityType} with predicate", typeof(T).Name);
+            return await _dbSet.Where(predicate).FirstOrDefaultAsync();
+        }
+
+        public virtual async Task<T?> FirstOrDefaultAsync(
+            Expression<Func<T, bool>> predicate = null,
+            string includeString = null,
+            bool disableTracking = true)
+        {
+            _logger.LogInformation("Getting entities of type {EntityType} with predicate and ordering", typeof(T).Name);
+
+            IQueryable<T> query = _dbSet;
+
+            if (disableTracking)
+                query = query.AsNoTracking();
+
+            if (!string.IsNullOrWhiteSpace(includeString))
+                query = query.Include(includeString);
+
+            if (predicate != null)
+                query = query.Where(predicate);
+
+            return await query.FirstOrDefaultAsync();
+        }
+
+        public virtual async Task<T?> FirstOrDefaultAsync(
+            Expression<Func<T, bool>> predicate = null,
+            List<Expression<Func<T, object>>> includes = null,
+            bool disableTracking = true)
+        {
+            _logger.LogInformation("Getting entities of type {EntityType} with complex parameters", typeof(T).Name);
+
+            IQueryable<T> query = _dbSet;
+
+            if (disableTracking)
+                query = query.AsNoTracking();
+
+            if (includes != null)
+                query = includes.Aggregate(query, (current, include) => current.Include(include));
+
+            if (predicate != null)
+                query = query.Where(predicate);
+
+            return await query.FirstOrDefaultAsync();
+        }
+
         public virtual async Task<T> GetByIdAsync(int id)
         {
             _logger.LogInformation("Getting entity of type {EntityType} with id {EntityId}", typeof(T).Name, id);
@@ -179,7 +227,6 @@ namespace DailyDN.Infrastructure.Repositories
 
 
             await _context.AddAsync(entity, cancellationToken);
-            await _context.SaveChangesAsync(cancellationToken);
 
             return entity;
         }
@@ -188,14 +235,12 @@ namespace DailyDN.Infrastructure.Repositories
         {
             _logger.LogInformation("Updating entity of type {EntityType} with id {EntityId}", typeof(T).Name, entity.Id);
             _context.Update(entity);
-            await _context.SaveChangesAsync();
         }
 
         public async Task DeleteAsync(T entity)
         {
             _logger.LogInformation("Deleting entity of type {EntityType} with id {EntityId}", typeof(T).Name, entity.Id);
             _context.Remove(entity);
-            await _context.SaveChangesAsync();
         }
     }
 }

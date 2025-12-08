@@ -18,6 +18,7 @@ namespace DailyDN.Application
             services.AddMediatR(cfg =>
             {
                 cfg.RegisterServicesFromAssemblies(assemblies);
+                cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
                 cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
             });
 
@@ -26,8 +27,10 @@ namespace DailyDN.Application
             services.AddAutoMapper(typeof(MappingProfile).Assembly);
             services.AddValidatorsFromAssembly(ApplicationAssembly.Instance);
             services.AddScoped<IAuthenticatedUser, AuthenticatedUser>();
-            services.AddScoped<IPostsService, PostsService>();
+            services.AddScoped<IPostsService, PostService>();
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IOtpService, OtpService>();
             services.AddScoped(typeof(IPasswordHasher<>), typeof(PasswordHasher<>));
             services.AddHttpContextAccessor();
             
