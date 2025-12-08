@@ -40,7 +40,7 @@ namespace DailyDN.API
                             ValidAudience = configuration["JwtSettings:Audience"],
                             ValidateLifetime = true,
                             ValidateIssuerSigningKey = true,
-                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtSettings:Key"]))
+                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtSettings:Key"]!))
                         };
                         options.Events = new JwtBearerEvents
                         {

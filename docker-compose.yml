@@ -31,6 +31,13 @@ services:
       SmtpSettings__Password: ${SMTP_PASSWORD}
       SmtpSettings__EnableSsl: ${SMTP_SSL}
 
+      #JWT
+      JwtSettings__Issuer: ${JWTSETTINGS_ISSUER}
+      JwtSettings__Audience: ${JWTSETTINGS_AUDIENCE}
+      JwtSettings__Key: ${JWTSETTINGS_KEY}
+      JwtSettings__ExpiresInMinutes: ${JWTSETTINGS_EXPIRESINMINUTES}
+      JwtSettings__RefreshTokenExpiresInDays: ${JWTSETTINGS_REFRESHTOKENEXPIRESINDAYS}
+
     depends_on:
       - mssql
       - redis
