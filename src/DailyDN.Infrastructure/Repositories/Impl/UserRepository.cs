@@ -17,7 +17,7 @@ namespace DailyDN.Infrastructure.Repositories.Impl
 
         public async Task<User?> GetUserWithRolesAndClaimsAsync(int id)
         {
-            return await _context.Set<User>()
+            return await _dbSet
                 .Include(u => u.UserRoles)
                     .ThenInclude(ur => ur.Role)
                         .ThenInclude(r => r.RoleClaims)
