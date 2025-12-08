@@ -21,8 +21,8 @@ namespace DailyDN.Infrastructure.Repositories
         public virtual async Task<(IReadOnlyList<T> Items, int TotalCount)> GetPaginatedAsync(
             int page,
             int pageSize,
-            Expression<Func<T, bool>> predicate = null,
-            string includeString = null,
+            Expression<Func<T, bool>>? predicate = null,
+            string? includeString = null,
             bool disableTracking = true
         )
         {
@@ -53,8 +53,8 @@ namespace DailyDN.Infrastructure.Repositories
             int page,
             int pageSize,
             Func<IQueryable<T>, IQueryable<T>> includes,
-            Expression<Func<T, bool>> predicate = null,
-            Expression<Func<T, object>> orderBy = null,
+            Expression<Func<T, bool>>? predicate = null,
+            Expression<Func<T, object>>? orderBy = null,
             bool orderDescending = true,
             bool disableTracking = true
         )
@@ -100,9 +100,9 @@ namespace DailyDN.Infrastructure.Repositories
         }
 
         public virtual async Task<IReadOnlyList<T>> GetAsync(
-            Expression<Func<T, bool>> predicate = null,
-            Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
-            string includeString = null,
+            Expression<Func<T, bool>>? predicate = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+            string? includeString = null,
             bool disableTracking = true)
         {
             _logger.LogInformation("Getting entities of type {EntityType} with predicate and ordering", typeof(T).Name);
@@ -125,9 +125,9 @@ namespace DailyDN.Infrastructure.Repositories
         }
 
         public virtual async Task<IReadOnlyList<T>> GetAsync(
-            Expression<Func<T, bool>> predicate = null,
-            Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
-            List<Expression<Func<T, object>>> includes = null,
+            Expression<Func<T, bool>>? predicate = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+            List<Expression<Func<T, object>>>? includes = null,
             bool disableTracking = true)
         {
             _logger.LogInformation("Getting entities of type {EntityType} with complex parameters", typeof(T).Name);
@@ -156,8 +156,8 @@ namespace DailyDN.Infrastructure.Repositories
         }
 
         public virtual async Task<T?> FirstOrDefaultAsync(
-            Expression<Func<T, bool>> predicate = null,
-            string includeString = null,
+            Expression<Func<T, bool>>? predicate = null,
+            string? includeString = null,
             bool disableTracking = true)
         {
             _logger.LogInformation("Getting entities of type {EntityType} with predicate and ordering", typeof(T).Name);
@@ -177,8 +177,8 @@ namespace DailyDN.Infrastructure.Repositories
         }
 
         public virtual async Task<T?> FirstOrDefaultAsync(
-            Expression<Func<T, bool>> predicate = null,
-            List<Expression<Func<T, object>>> includes = null,
+            Expression<Func<T, bool>>? predicate = null,
+            List<Expression<Func<T, object>>>? includes = null,
             bool disableTracking = true)
         {
             _logger.LogInformation("Getting entities of type {EntityType} with complex parameters", typeof(T).Name);
@@ -197,13 +197,13 @@ namespace DailyDN.Infrastructure.Repositories
             return await query.FirstOrDefaultAsync();
         }
 
-        public virtual async Task<T> GetByIdAsync(int id)
+        public virtual async Task<T?> GetByIdAsync(int id)
         {
             _logger.LogInformation("Getting entity of type {EntityType} with id {EntityId}", typeof(T).Name, id);
             return await _dbSet.FindAsync(id);
         }
 
-        public virtual async Task<T> GetByIdAsync(int id, List<Expression<Func<T, object>>> includes = null)
+        public virtual async Task<T?> GetByIdAsync(int id, List<Expression<Func<T, object>>> includes)
         {
             _logger.LogInformation("Getting entity of type {EntityType} with id {EntityId}", typeof(T).Name, id);
 
