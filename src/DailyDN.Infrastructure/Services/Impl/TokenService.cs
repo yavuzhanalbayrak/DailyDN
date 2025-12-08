@@ -16,8 +16,7 @@ namespace DailyDN.Infrastructure.Services.Impl
 
         private async Task<TokenResponse> GenerateAccessToken(int userId)
         {
-            var user = await uow.Users.GetUserWithRolesAndClaimsAsync(userId);
-
+            var user = await uow.Users.GetUserWithRolesAndClaimsAsync(userId) ?? throw new ArgumentException("");
             var claims = new List<System.Security.Claims.Claim>
             {
                 new(ClaimTypes.NameIdentifier, user.Id.ToString()),
@@ -25,15 +24,13 @@ namespace DailyDN.Infrastructure.Services.Impl
                 new(ClaimTypes.Email, user.Email),
             };
 
-            foreach (var userRole in user.UserRoles)
-            {
-                claims.Add(new System.Security.Claims.Claim(ClaimTypes.Role, userRole.Role.Name));
+            claims.AddRange(
+                user.UserRoles.Select(ur => new System.Security.Claims.Claim(ClaimTypes.Role, ur.Role.Name)));
 
-                foreach (var roleClaim in userRole.Role.RoleClaims)
-                {
-                    claims.Add(new System.Security.Claims.Claim(roleClaim.Claim.Type, roleClaim.Claim.Value));
-                }
-            }
+            claims.AddRange(
+                user.UserRoles
+                    .SelectMany(ur => ur.Role.RoleClaims)
+                    .Select(rc => new System.Security.Claims.Claim(rc.Claim.Type, rc.Claim.Value)));
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
             var credential = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

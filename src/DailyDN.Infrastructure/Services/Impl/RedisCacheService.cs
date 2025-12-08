@@ -41,7 +41,7 @@ namespace DailyDN.Infrastructure.Services.Impl
                 logger.LogDebug("Cache hit for key: {Key}", key);
             });
 
-            if (result == null)
+            if (EqualityComparer<T>.Default.Equals(result, default))
                 logger.LogTrace("No value returned for key: {Key}", key);
 
             return result;
@@ -63,12 +63,12 @@ namespace DailyDN.Infrastructure.Services.Impl
         {
             logger.LogDebug("Checking if cache key exists: {Key}", key);
 
-            bool exists = false;
 
-            await policyWrap.ExecuteAsync(async () =>
+            bool exists = await policyWrap.ExecuteAsync(async () =>
             {
-                exists = await _database.KeyExistsAsync(key);
-                logger.LogDebug("Cache key {Key} existence: {Exists}", key, exists);
+                var value = await _database.KeyExistsAsync(key);
+                logger.LogDebug("Cache key {Key} existence: {Exists}", key, value);
+                return value;
             });
 
             if (exists)
