@@ -20,7 +20,7 @@ namespace DailyDN.Infrastructure.Services.Impl
             var claims = new List<System.Security.Claims.Claim>
             {
                 new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new(ClaimTypes.Name, $"{user.Name} {user.Surname}"),
+                new(ClaimTypes.Name, $"{user.GetFullName()}"),
                 new(ClaimTypes.Email, user.Email),
             };
 

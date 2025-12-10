@@ -9,8 +9,8 @@ namespace DailyDN.Infrastructure.Seed
         {
             var roles = new List<Role>
             {
-                new("Admin") { Id = 1 },
-                new("User")  { Id = 2 } 
+                new(Domain.Enums.Role.Admin),
+                new(Domain.Enums.Role.User)
             };
 
             modelBuilder.Entity<Role>().HasData(roles);

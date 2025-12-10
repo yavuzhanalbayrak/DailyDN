@@ -42,13 +42,12 @@ namespace DailyDN.Application.Profiles
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Role.Name));
 
             CreateMap<RedisUserRoleDto, UserRole>()
-                .ForMember(dest => dest.Role, opt => opt.MapFrom(src => new Role(src.Name) { Id = src.Id }));
+                .ForMember(dest => dest.Role, opt => opt.MapFrom(src => new Role((Domain.Enums.Role)src.Id)));
 
             CreateMap<RedisUserDto, User>()
                 .ForMember(dest => dest.UserRoles, opt => opt.MapFrom(src => src.UserRoles))
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.Surname, opt => opt.MapFrom(src => src.Surname))
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName))
                 .ForMember(dest => dest.AvatarUrl, opt => opt.MapFrom(src => src.AvatarUrl))
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email));
         }

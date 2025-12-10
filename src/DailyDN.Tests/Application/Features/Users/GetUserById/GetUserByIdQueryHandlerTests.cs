@@ -2,6 +2,7 @@ using AutoMapper;
 using DailyDN.Application.Features.Users.GetUserById;
 using DailyDN.Application.Services.Interfaces;
 using DailyDN.Domain.Entities;
+using DailyDN.Domain.ValueObjects;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -38,20 +39,19 @@ namespace DailyDN.Tests.Application.Features.Users.GetUserById
 
             var user = new User
             (
-                "John",
-                "Doe",
-                "john@example.com",
-                "5002001020",
-                "passwordHash",
-                "/url",
-                1
-            );
+                new FullName("John", "Doe"),
+                new Email("john@example.com"),
+                new PhoneNumber("5002001020"),
+                new PasswordHash("passwordHash")
+            )
+            {
+                Id = 1
+            };
 
             var expectedResponse = new GetUserByIdQueryResponse
             {
                 Id = 1,
-                Name = "John",
-                Surname = "Doe",
+                FullName = new FullName("john","doe"),
                 Email = "john@example.com"
             };
 

@@ -1,21 +1,23 @@
+using DailyDN.Domain.ValueObjects;
+
 namespace DailyDN.Domain.Entities
 {
     public class User : Entity
     {
-        public string Name { get; private set; } = null!;
-        public string Surname { get; private set; } = null!;
+        public FullName FullName { get; private set; } = null!;
+
         public string? AvatarUrl { get; private set; }
 
-        public string Email { get; private set; } = null!;
-        public string PhoneNumber { get; private set; } = null!;
-        public string PasswordHash { get; private set; } = null!;
+        public Email Email { get; private set; } = null!;
+        public PhoneNumber PhoneNumber { get; private set; } = null!;
+        public PasswordHash PasswordHash { get; private set; } = null!;
 
         public string? OtpCode { get; private set; }
         public DateTime? OtpGeneratedAt { get; private set; }
         public Guid? Guid { get; set; }
         public bool IsGuidUsed { get; set; } = false;
 
-        public bool IsEmailVerified { get; private set; }
+        public bool IsEmailVerified { get; private set; } = false;
         public DateTime? LastLoginAt { get; private set; }
 
         public ICollection<UserRole> UserRoles { get; private set; } = [];
@@ -31,21 +33,27 @@ namespace DailyDN.Domain.Entities
         public DateTime? EmailVerificationTokenGeneratedAt { get; private set; }
         public bool IsEmailVerificationTokenUsed { get; private set; } = false;
 
-
         public User() { }
 
-        public User(string name, string surname, string email, string phoneNumber, string passwordHash, string? avatarUrl = null, int id = 0, ICollection<UserRole>? userRoles = null, bool isEmailVerified = false)
+        public User(FullName fullName, Email email, PhoneNumber phoneNumber, PasswordHash passwordHash)
         {
-            Id = id;
-            Name = name;
-            Surname = surname;
+            FullName = fullName;
             Email = email;
             PhoneNumber = phoneNumber;
             PasswordHash = passwordHash;
-            AvatarUrl = avatarUrl;
-            UserRoles = userRoles ?? [];
-            IsEmailVerified = isEmailVerified;
         }
+
+        public void AddRole(Enums.Role roleType)
+        {
+            var role = new Role(roleType);
+            UserRoles.Add(new UserRole(Id, role.Id)
+            {
+                Role = role
+            });
+        }
+
+
+        public string GetFullName() => FullName.ToString();
 
         public void SetOtp(string code, Guid guid)
         {
@@ -70,13 +78,12 @@ namespace DailyDN.Domain.Entities
 
         public void SetPassword(string hashedPassword)
         {
-            PasswordHash = hashedPassword;
+            PasswordHash = new PasswordHash(hashedPassword);
         }
 
-        public void UpdateName(string name, string surname)
+        public void UpdateFullName(string name, string surname)
         {
-            Name = name;
-            Surname = surname;
+            FullName = new FullName(name, surname);
         }
 
         public void SetAvatar(string? avatarUrl)
@@ -98,8 +105,6 @@ namespace DailyDN.Domain.Entities
                 .Distinct();
         }
 
-        public string FullName => $"{Name} {Surname}";
-
         public void GeneratePasswordResetToken()
         {
             ForgotPasswordToken = System.Guid.NewGuid();
@@ -118,7 +123,7 @@ namespace DailyDN.Domain.Entities
 
         public void ResetPassword(string newHashedPassword)
         {
-            PasswordHash = newHashedPassword;
+            PasswordHash = new PasswordHash(newHashedPassword);
             IsForgotPasswordTokenUsed = true;
             ForgotPasswordToken = null;
             ForgotPasswordTokenGeneratedAt = null;

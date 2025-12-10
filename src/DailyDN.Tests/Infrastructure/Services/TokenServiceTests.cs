@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using DailyDN.Domain.Entities;
+using DailyDN.Domain.ValueObjects;
 using DailyDN.Infrastructure.Helpers;
 using DailyDN.Infrastructure.Models;
 using DailyDN.Infrastructure.Repositories;
@@ -29,21 +30,21 @@ namespace DailyDN.Tests.Infrastructure.Services
         public void Setup()
         {
             // Fake user
-            _fakeUser = new User("John", "Doe", "john@example.com", "05002001020", "hashed")
+            _fakeUser = new User(new FullName("John", "Doe"), new Email("john@example.com"), new PhoneNumber("05002001020"), new PasswordHash("hashed"))
             {
                 Id = 1,
                 UserRoles =
                 {
                     new UserRole
                     {
-                        Role = new Role("Admin")
+                        Role = new Role(Domain.Enums.Role.Admin)
                         {
                             RoleClaims =
                             {
                                 new RoleClaim()
                                 {
                                     RoleId = 1,
-                                    Role = new Role("Admin")
+                                    Role = new Role(Domain.Enums.Role.Admin)
                                     {
                                         Id = 1
                                     },

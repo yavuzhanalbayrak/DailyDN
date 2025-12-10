@@ -7,7 +7,7 @@ using DailyDN.Infrastructure.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using DailyDN.Infrastructure.Helpers;
-using DailyDN.Domain.Enums;
+using DailyDN.Domain.ValueObjects;
 
 namespace DailyDN.Application.Services.Implementations
 {
@@ -24,7 +24,7 @@ namespace DailyDN.Application.Services.Implementations
     {
         public async Task<Result> LoginAsync(string email, string password)
         {
-            var user = await uow.Users.FirstOrDefaultAsync(u => u.Email == email);
+            var user = await uow.Users.FirstOrDefaultAsync(u => u.Email.Value == email);
             if (user is null)
             {
                 return Result.Failure(new Error("Unauthorized", "Email or password is incorrect."));
@@ -70,26 +70,26 @@ namespace DailyDN.Application.Services.Implementations
             CancellationToken cancellationToken
         )
         {
-            var isEmailExists = await uow.Users.GetAsync(u => u.Email == email);
+            var isEmailExists = await uow.Users.GetAsync(u => u.Email.Value == email);
             if (isEmailExists.Any())
             {
                 return Result.Failure(new Error("Conflict", "This email is already registered."));
             }
 
-            var isPhoneNumberExists = await uow.Users.GetAsync(u => u.PhoneNumber == phoneNumber);
+            var isPhoneNumberExists = await uow.Users.GetAsync(u => u.PhoneNumber.Value == phoneNumber);
             if (isPhoneNumberExists.Any())
             {
                 return Result.Failure(new Error("Conflict", "This phone number is already registered."));
             }
 
             var user = new User(
-                name: name,
-                surname: surname,
-                email: email,
-                phoneNumber: phoneNumber,
-                passwordHash: "",
-                userRoles: [new(0, (int)Domain.Enums.Role.User)]
+                fullName: new FullName(name, surname),
+                email: new Email(email),
+                phoneNumber: new PhoneNumber(phoneNumber),
+                passwordHash: new PasswordHash()
             );
+
+            user.AddRole(Domain.Enums.Role.User);
 
             var hashedPassword = passwordHasher.HashPassword(user, password);
             user.SetPassword(hashedPassword);
@@ -106,7 +106,7 @@ namespace DailyDN.Application.Services.Implementations
             );
 
             await mailService.SendEmailAsync(
-                toList: [user.Email],
+                toList: [user.Email.Value],
                 subject: "Verify Your Email",
                 body: html
             );
@@ -163,7 +163,7 @@ namespace DailyDN.Application.Services.Implementations
 
         public async Task ForgotPasswordAsync(string email)
         {
-            var user = await uow.Users.FirstOrDefaultAsync(u => u.Email == email);
+            var user = await uow.Users.FirstOrDefaultAsync(u => u.Email.Value == email);
             if (user is null)
                 return;
 

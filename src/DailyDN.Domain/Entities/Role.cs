@@ -8,9 +8,10 @@ namespace DailyDN.Domain.Entities
 
         private Role() { }
 
-        public Role(string name)
+        public Role(Enums.Role role)
         {
-            Name = name;
+            Id = (int)role;
+            Name = role.ToString();
         }
     }
 }
