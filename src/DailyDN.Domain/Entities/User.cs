@@ -46,10 +46,7 @@ namespace DailyDN.Domain.Entities
         public void AddRole(Enums.Role roleType)
         {
             var role = new Role(roleType);
-            UserRoles.Add(new UserRole(Id, role.Id)
-            {
-                Role = role
-            });
+            UserRoles.Add(new UserRole(Id, role.Id));
         }
 
 
