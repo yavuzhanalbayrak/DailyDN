@@ -7,13 +7,12 @@ namespace DailyDN.Application.Features.Auth.VerifyOtp
 {
     public class VerifyOtpCommandHandler(
         IMapper mapper,
-        IAuthService authService
+        IOtpService otpService
     ) : ICommandHandler<VerifyOtpCommand, VerifyOtpCommandResponse>
     {
         public async Task<Result<VerifyOtpCommandResponse>> Handle(VerifyOtpCommand request, CancellationToken cancellationToken)
         {
-
-            var token = await authService.VerifyOtpAsync(request.Guid, request.Otp);
+            var token = await otpService.VerifyOtpAsync(request.Guid, request.Otp);
 
             if (token is null)
                 return Result.Failure<VerifyOtpCommandResponse>(new Error("Otp.Invalid", "OTP is invalid or has expired."));

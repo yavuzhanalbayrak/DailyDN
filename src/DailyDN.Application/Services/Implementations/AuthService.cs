@@ -4,7 +4,6 @@ using DailyDN.Domain.Entities;
 using DailyDN.Infrastructure.Models;
 using DailyDN.Infrastructure.UnitOfWork;
 using DailyDN.Infrastructure.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using DailyDN.Infrastructure.Helpers;
 using DailyDN.Domain.ValueObjects;
@@ -14,12 +13,11 @@ namespace DailyDN.Application.Services.Implementations
     public class AuthService(
         IUnitOfWork uow,
         IPasswordHasher<User> passwordHasher,
-        IHttpContextAccessor httpContextAccessor,
         ITokenService tokenService,
-        IOtpService otpService,
         ISmsService smsService,
         IMailService mailService,
-        IMailTemplateService mailTemplateService
+        IMailTemplateService mailTemplateService,
+        IOtpService otpService
     ) : IAuthService
     {
         public async Task<Result> LoginAsync(string email, string password)
@@ -115,29 +113,6 @@ namespace DailyDN.Application.Services.Implementations
             await uow.SaveChangesAsync();
 
             return Result.SuccessWithMessage("Registration completed successfully.");
-        }
-
-        public async Task<TokenResponse?> VerifyOtpAsync(Guid guid, string otp)
-        {
-            var ipAddress = httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString() ?? "";
-            var userAgent = httpContextAccessor.HttpContext?.Request.Headers.UserAgent.ToString() ?? "";
-
-            var userList = await uow.Users.GetAsync(u => u.Guid == guid);
-            var user = userList[0];
-
-            if (user.IsOtpValid(otp, TimeSpan.FromMinutes(1)))
-            {
-                var tokenResponse = await tokenService.GenerateTokens(user.Id, ipAddress, userAgent);
-
-                user.Login();
-                await uow.Users.UpdateAsync(user);
-                await uow.SaveChangesAsync();
-
-                return tokenResponse;
-            }
-            else
-                return null;
-
         }
 
         public async Task<TokenResponse?> RefreshTokenAsync(string refreshToken)

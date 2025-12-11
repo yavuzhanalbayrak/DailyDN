@@ -1,11 +1,8 @@
 using AutoMapper;
-using DailyDN.Application.Common.Model;
 using DailyDN.Application.Features.Auth.VerifyOtp;
 using DailyDN.Application.Services.Interfaces;
-using Microsoft.Extensions.Logging;
 using Moq;
 using FluentAssertions;
-using DailyDN.Infrastructure.Services;
 using DailyDN.Infrastructure.Models;
 
 namespace DailyDN.Tests.Application.Features.Auth.VerifyOtp
@@ -13,19 +10,19 @@ namespace DailyDN.Tests.Application.Features.Auth.VerifyOtp
     [TestFixture]
     public class VerifyOtpCommandHandlerTests
     {
-        private Mock<IAuthService> _authServiceMock = null!;
+        private Mock<IOtpService> _otpServiceMock = null!;
         private Mock<IMapper> _mapperMock = null!;
         private VerifyOtpCommandHandler _handler = null!;
 
         [SetUp]
         public void SetUp()
         {
-            _authServiceMock = new Mock<IAuthService>();
+            _otpServiceMock = new Mock<IOtpService>();
             _mapperMock = new Mock<IMapper>();
 
             _handler = new VerifyOtpCommandHandler(
                 _mapperMock.Object,
-                _authServiceMock.Object
+                _otpServiceMock.Object
             );
         }
 
@@ -50,7 +47,7 @@ namespace DailyDN.Tests.Application.Features.Auth.VerifyOtp
                 RefreshTokenExpiration = fakeToken.RefreshTokenExpiration
             };
 
-            _authServiceMock
+            _otpServiceMock
                 .Setup(x => x.VerifyOtpAsync(command.Guid, command.Otp))
                 .ReturnsAsync(fakeToken);
 
@@ -65,7 +62,7 @@ namespace DailyDN.Tests.Application.Features.Auth.VerifyOtp
             result.IsSuccess.Should().BeTrue();
             result.Data.Should().BeEquivalentTo(response);
 
-            _authServiceMock.Verify(x => x.VerifyOtpAsync(command.Guid, command.Otp), Times.Once);
+            _otpServiceMock.Verify(x => x.VerifyOtpAsync(command.Guid, command.Otp), Times.Once);
             _mapperMock.Verify(x => x.Map<VerifyOtpCommandResponse>(fakeToken), Times.Once);
         }
 
@@ -75,7 +72,7 @@ namespace DailyDN.Tests.Application.Features.Auth.VerifyOtp
             // Arrange
             var command = new VerifyOtpCommand(Guid.NewGuid(), "wrong-otp");
 
-            _authServiceMock
+            _otpServiceMock
                 .Setup(x => x.VerifyOtpAsync(command.Guid, command.Otp))
                 .ReturnsAsync((TokenResponse?)null);
 
@@ -87,7 +84,7 @@ namespace DailyDN.Tests.Application.Features.Auth.VerifyOtp
             result.Error!.Code.Should().Be("Otp.Invalid");
             result.Error.Message.Should().Be("OTP is invalid or has expired.");
 
-            _authServiceMock.Verify(x => x.VerifyOtpAsync(command.Guid, command.Otp), Times.Once);
+            _otpServiceMock.Verify(x => x.VerifyOtpAsync(command.Guid, command.Otp), Times.Once);
             _mapperMock.Verify(x => x.Map<VerifyOtpCommandResponse>(It.IsAny<object>()), Times.Never);
         }
     }
