@@ -46,7 +46,7 @@ jobs:
             /k:"yavuzhanalbayrak_DailyDN" `
             /o:"yavuzhanalbayrak" `
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}" `
-            /d:sonar.exclusions="**/Migrations/**,**/bin/**,**/obj/**,**/wwwroot/**"
+            /d:sonar.exclusions="**/Migrations/**,**/bin/**,**/obj/**,**/wwwroot/**,**/.github/**,**/Dockerfile"
 
           dotnet build
 

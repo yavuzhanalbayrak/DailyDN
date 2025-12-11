@@ -25,7 +25,7 @@ namespace DailyDN.Infrastructure.Services.Impl
             using var client = new SmtpClient(_smtpSettings.Host, _smtpSettings.Port)
             {
                 Credentials = new NetworkCredential(_smtpSettings.User, _smtpSettings.Password),
-                EnableSsl = _smtpSettings.EnableSsl
+                EnableSsl = true
             };
 
             using var message = new MailMessage
