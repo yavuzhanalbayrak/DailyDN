@@ -192,9 +192,9 @@ namespace DailyDN.Application.Services.Implementations
                 await uow.SaveChangesAsync();
                 return Result.SuccessWithMessage("Email verified successfully.");
             }
-            catch (Exception)
+            catch (InvalidOperationException ex)
             {
-                return Result.Failure(new Error("Conflict", "Invalid verification token."));
+                return Result.Failure(new Error("Conflict", ex.Message));
             }
         }
     }

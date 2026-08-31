@@ -7,13 +7,6 @@ Bu doküman, DailyDN projesinde gerçekleştirilen geliştirmelerin, hata düzel
 ## ⏳ Aktif / Sıradaki Görevler (Pending & In Progress)
 <!-- Agent veya geliştirici işi yarıda bıraktığında veya sonraki oturuma geçildiğinde buradaki maddelerden devam edilir -->
 
-- [ ] **Görev Adı: [BUG-06] `AuthService.VerifyEmailAsync` - Syntax Lekesi ve Geniş `catch` Yakalama**
-  - **Kategori:** 🔴 Kritik Hata (Exception Handling / Code Quality)
-  - **Mevcut Durum:** Beklemede.
-  - **Tamamlanması Gerekenler:** Çift noktalı virgül temizlenecek, `catch (Exception)` yerine domain exception `InvalidOperationException` spesifik yakalanacak.
-  - **Bağlı Dosyalar:**
-    - `src/DailyDN.Application/Services/Implementations/AuthService.cs`
-
 - [ ] **Görev Adı: [SEC-01] `AuthService.LoginAsync` OTP Response Sızıntısının Önlenmesi**
   - **Kategori:** 🔴 Güvenlik (2FA Bypass Riski)
   - **Mevcut Durum:** Beklemede.
@@ -34,6 +27,17 @@ Bu doküman, DailyDN projesinde gerçekleştirilen geliştirmelerin, hata düzel
 <!-- Tamamlanan maddeler tarih ve saat damgasıyla buraya taşınır -->
 
 ### 📅 2026-08-31
+
+#### 🕒 03:40:00 (UTC+3)
+- [x] **[BUG-06] `AuthService.VerifyEmailAsync` - Exception Handling ve İyileştirilmesi**
+  - **Branch:** `bugfix/core-fixes`
+  - **Commit Mesajı:** `fix(auth): catch specific InvalidOperationException in VerifyEmailAsync`
+  - **Yapılan İşlemler:**
+    - `AuthService.VerifyEmailAsync` içindeki geniş `catch (Exception)` bloğu kaldırılarak `catch (InvalidOperationException ex)` şeklinde spesifik hale getirildi.
+    - Böylece altyapı veya veritabanı hataları yanlışlıkla 'Invalid verification token' olarak maskelenmek yerine `ErrorHandlerMiddleware` tarafından uygun şekilde yakalanması sağlandı.
+    - `dotnet test` koşturuldu ve tüm 35 test başarıyla geçti.
+  - **Bağlı Dosyalar:**
+    - `src/DailyDN.Application/Services/Implementations/AuthService.cs`
 
 #### 🕒 03:39:00 (UTC+3)
 - [x] **[BUG-05] `GenericRepository.cs` `disableTracking` Parametresinin İlk Overload'da Yok Sayılması Hatasının Düzeltilmesi**
