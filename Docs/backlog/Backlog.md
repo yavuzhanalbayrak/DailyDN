@@ -7,13 +7,6 @@ Bu doküman, DailyDN projesinde gerçekleştirilen geliştirmelerin, hata düzel
 ## ⏳ Aktif / Sıradaki Görevler (Pending & In Progress)
 <!-- Agent veya geliştirici işi yarıda bıraktığında veya sonraki oturuma geçildiğinde buradaki maddelerden devam edilir -->
 
-- [ ] **Görev Adı: [BUG-03] `DailyDNDbContext` Eksik DbSet Tanımlamaları**
-  - **Kategori:** 🔴 Kritik Hata (EF Core DbContext)
-  - **Mevcut Durum:** Beklemede.
-  - **Tamamlanması Gerekenler:** `Posts`, `Chats`, `ChatMessage`, `UserChat` DbSet'leri `DailyDNDbContext` içine eklenecek.
-  - **Bağlı Dosyalar:**
-    - `src/DailyDN.Infrastructure/Contexts/DailyDNDbContext.cs`
-
 - [ ] **Görev Adı: [BUG-04] `UserService.cs` Profile Photo Cache Invalidation Eksikliği**
   - **Kategori:** 🔴 Kritik Hata (Redis Cache Invalidation)
   - **Mevcut Durum:** Beklemede.
@@ -41,6 +34,17 @@ Bu doküman, DailyDN projesinde gerçekleştirilen geliştirmelerin, hata düzel
 <!-- Tamamlanan maddeler tarih ve saat damgasıyla buraya taşınır -->
 
 ### 📅 2026-08-31
+
+#### 🕒 03:36:00 (UTC+3)
+- [x] **[BUG-03] `DailyDNDbContext` - Eksik DbSet Tanımlamalarının Eklenmesi**
+  - **Branch:** `bugfix/core-fixes`
+  - **Commit Mesajı:** `fix(efcore): add missing DbSet definitions to DailyDNDbContext`
+  - **Yapılan İşlemler:**
+    - `DailyDNDbContext` içine eksik olan `DbSet<Post> Posts`, `DbSet<Chat> Chats`, `DbSet<ChatMessage> ChatMessages` ve `DbSet<UserChat> UserChats` DbSet'leri eklendi.
+    - Böylece LINQ sorgularında `_context.Posts` ve `_context.Chats` doğrudan erişilebilir hale getirildi.
+    - `dotnet test` koşturuldu ve tüm 35 test başarıyla geçti.
+  - **Bağlı Dosyalar:**
+    - `src/DailyDN.Infrastructure/Contexts/DailyDNDbContext.cs`
 
 #### 🕒 03:30:00 (UTC+3)
 - [x] **[BUG-02] `ApplicationContext.cs` Audit Loglarında `CreatedBy`/`UpdatedBy` `0` Kalma Sorununun Düzeltilmesi**
