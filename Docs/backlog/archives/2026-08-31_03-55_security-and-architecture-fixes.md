@@ -7,7 +7,17 @@
 
 ---
 
-### 1. 🕒 05:20:00 (UTC+3) - [BUG-01.1] `OtpService.VerifyOtpAsync` Dizi Sınır Aşımı Düzeltmesi ve Dal Temizliği
+### 1. 🕒 05:33:00 (UTC+3) - [SONAR-01] SonarQube Kuralı `S107` - `AuthService` Fazla Constructor Parametresi Refactoring'i
+- **Commit:** `refactor(auth): encapsulate template email sending in IMailService to fix Sonar S107 parameter count`
+- **Bağlı Dosyalar:** `src/DailyDN.Infrastructure/Services/IMailService.cs`, `src/DailyDN.Infrastructure/Services/Impl/SmtpMailService.cs`, `src/DailyDN.Application/Services/Implementations/AuthService.cs`
+- **Açıklama:**
+  - `AuthService` constructor'ında 8 parametre bulunması nedeniyle tetiklenen SonarQube `S107` uyarısı incelendi.
+  - `IMailTemplateService` bağımlılığı doğrudan `IMailService.SendTemplateEmailAsync` içine kapsüllenerek `AuthService`'ten çıkarıldı.
+  - Parametre sayısı 8'den 7'ye indirilerek SonarQube standartlarına ve Clean Architecture SRP/Enkapsülasyon ilkelerine tam uyum sağlandı.
+
+---
+
+### 2. 🕒 05:20:00 (UTC+3) - [BUG-01.1] `OtpService.VerifyOtpAsync` Dizi Sınır Aşımı Düzeltmesi ve Dal Temizliği
 - **Commit:** `486929b` (`fix(auth): prevent ArgumentOutOfRangeException in OtpService.VerifyOtpAsync`)
 - **Bağlı Dosyalar:** `src/DailyDN.Application/Services/Implementations/OtpService.cs`
 - **Açıklama:**

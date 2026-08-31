@@ -41,7 +41,8 @@ Bu doküman, DailyDN projesinde aktif olarak yürütülen ve sırada bekleyen g�
 ## 🗄️ Tamamlanan Görevler Arşivi (Changelog Archives)
 <!-- En yeniden en eskiye (Ters Kronolojik) sıralı arşiv paketleri -->
 
-- 📦 **[2026-08-31 05:20:00 UTC+3] Güvenlik & Mimari Düzeltmeleri (9 Görev)**: [`archives/2026-08-31_03-55_security-and-architecture-fixes.md`](file:///c:/Users/Kutbay/Desktop/Muhammed/DailyDN/Docs/backlog/archives/2026-08-31_03-55_security-and-architecture-fixes.md)
+- 📦 **[2026-08-31 05:33:00 UTC+3] Güvenlik & Mimari Düzeltmeleri (10 Görev)**: [`archives/2026-08-31_03-55_security-and-architecture-fixes.md`](file:///c:/Users/Kutbay/Desktop/Muhammed/DailyDN/Docs/backlog/archives/2026-08-31_03-55_security-and-architecture-fixes.md)
+  - `SONAR-01`: AuthService SonarQube S107 constructor parametresi ve IMailService kapsüllemesi
   - `BUG-01.1`: OtpService.VerifyOtpAsync ArgumentOutOfRangeException düzeltmesi
   - `SEC-06`: AutoMapper 14.0.0 -> 16.2.0 NU1903 güvenlik açığı yükseltmesi
   - `SEC-01`: AuthService Login OTP sızıntısı önleme (`#if DEBUG`)
