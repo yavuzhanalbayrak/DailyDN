@@ -20,7 +20,7 @@ Aşağıda proje kapsamında oluşturulan detaylı analiz ve rehber dokümanlar�
 | 06 | [06. Altyapı, Docker ve DevOps Mimarisi](file:///c:/Users/Kutbay/Desktop/Muhammed/DailyDN/Docs/06-infrastructure-and-devops.md) | `docker-compose.yml`, MSSQL, Redis, MongoDB, OpenSearch, Graylog, çevre değişkenleri (`.env`) ve ortam ayarları (`appsettings`). |
 | 07 | [07. Güvenlik, Hata Yönetimi ve Best Practices](file:///c:/Users/Kutbay/Desktop/Muhammed/DailyDN/Docs/07-security-and-best-practices.md) | Claim-based Authorization, Password Hashing, Token Rotation, Circuit Breaker, `[DoNotLog]` hassas veri maskeleme ve kod kalitesi. |
 | 08 | [08. Git İş Akışı ve Geliştirme Rehberi](file:///c:/Users/Kutbay/Desktop/Muhammed/DailyDN/Docs/08-git-workflow-and-contribution-guide.md) | Branch stratejisi (`develop`/`feature`), Conventional Commits standartları, Rebase/Conflict çözümü, PR şablonu ve Git cheat sheet. |
-| 📋 | [Proje Backlog ve Görev Takibi (Backlog)](file:///c:/Users/Kutbay/Desktop/Muhammed/DailyDN/Docs/backlog/Backlog.md) | Tarih ve saat damgalı aktif, yarım kalan ve tamamlanan görevlerin bağlam kaybını önleyen kayıt defteri. |
+| 📋 | [Proje Backlog ve Görev Takibi (Backlog)](file:///c:/Users/Kutbay/Desktop/Muhammed/DailyDN/Docs/backlog/Backlog.md) | Tarih ve saat damgalı aktif, yarım kalan ve tamamlanan görevlerin bağlam kaybını önleyen kayıt defteri ve [Arşiv İndeksi](file:///c:/Users/Kutbay/Desktop/Muhammed/DailyDN/Docs/backlog/archives/README.md). |
 | 🔬 | [Araştırma ve Kod Analiz Raporları (Researches)](file:///c:/Users/Kutbay/Desktop/Muhammed/DailyDN/Docs/researches/README.md) | Projenin statik kod analizi, kritik hatalar (bugs), güvenlik zafiyetleri, anti-pattern'ler ve refactoring incelemeleri. |
 
 ---

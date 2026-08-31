@@ -21,7 +21,9 @@ DailyDN; .NET 8/9, Clean Architecture, CQRS (MediatR), EF Core, Redis (Polly Res
 ### 2. 📋 Bağlam Kaybını Önleyen Backlog & Görev Takibi (Context Retention)
 - Her yeni göreve başlandığında ve her görev tamamlandığında **`Docs/backlog/Backlog.md`** dosyası güncellenmelidir.
 - **Tarih ve Saat Sıralı Takip:** Tamamlanan işler Türkiye Saati (UTC+3) ve zaman damgası (`🕒 SS:DD:SS`) ile arşivlenir.
-- **Yarım Kalan İşlerin Devir Teslimi:** Bir görev yarıda bırakıldığında veya oturum kapanma riski olduğunda "Hangi adımda kalındı?", "Sonraki oturumda ne yapılacak?" ve "Bağlı Dosyalar" açıkça Backlog'a not düşülür.
+- **Periyodik Arşivleme Kuralı (Anti-Bloating):** Backlog dosyasının şişmesini önlemek için tamamlanan görev paketleri/sprint'ler düzenli aralıklarla **`Docs/backlog/archives/YYYY-MM-DD_HH-mm_<kapsam>.md`** formatında arşivlenir.
+- **Ters Kronolojik İzleme (Reverse-Chronological Navigation):** İhtiyaç halinde geçmişe dönük bağlam veya görev takibi yapılırken **daima en son arşivlenen dosyadan başlanarak ilkine doğru** gidilir.
+- **Yarım Kalan İşlerin Devir Teslimi:** Bir görev yarıda bırakıldığında veya oturum kapanma riski olduğunda "Hangi adımda kalındı?", "Sonraki oturumda ne yapılacak?" ve "Bağlı Dosyalar" açıkça `Backlog.md` içine not düşülür.
 
 ---
 
