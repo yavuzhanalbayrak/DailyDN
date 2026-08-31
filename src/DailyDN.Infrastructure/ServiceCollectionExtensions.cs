@@ -46,10 +46,10 @@ namespace DailyDN.Infrastructure
                     .Handle<RedisConnectionException>()
                     .Or<RedisTimeoutException>()
                     .Or<RedisServerException>()
-                    .CircuitBreakerAsync(1, TimeSpan.FromMinutes(15),
-                        onBreak: (ex, _) => logger.LogError(ex, "Circuit opened"),
-                        onReset: () => logger.LogInformation("Circuit closed"),
-                        onHalfOpen: () => logger.LogWarning("Circuit half-open"));
+                    .CircuitBreakerAsync(3, TimeSpan.FromSeconds(30),
+                        onBreak: (ex, _) => logger.LogError(ex, "Redis Circuit Breaker opened for 30 seconds due to consecutive failures."),
+                        onReset: () => logger.LogInformation("Redis Circuit Breaker closed. Normal cache operations resumed."),
+                        onHalfOpen: () => logger.LogWarning("Redis Circuit Breaker half-open. Testing cache connectivity."));
 
                 var fallbackPolicy = Policy
                     .Handle<Exception>()
