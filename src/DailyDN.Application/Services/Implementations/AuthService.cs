@@ -52,11 +52,18 @@ namespace DailyDN.Application.Services.Implementations
             await uow.Users.UpdateAsync(user);
             await uow.SaveChangesAsync();
 
+#if DEBUG
             return Result.Success(new
             {
                 Guid = guid.ToString(),
-                Otp = otp // Fake sms provider olduğu için otp response içinde dönülüyor.
+                Otp = otp // Yalnızca yerel geliştirme/debug ortamında test kolaylığı için
             });
+#else
+            return Result.Success(new
+            {
+                Guid = guid.ToString()
+            });
+#endif
         }
 
         public async Task<Result> RegisterAsync(
