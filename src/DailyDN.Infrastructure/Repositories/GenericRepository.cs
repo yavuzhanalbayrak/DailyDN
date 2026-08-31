@@ -31,7 +31,7 @@ namespace DailyDN.Infrastructure.Repositories
             IQueryable<T> query = _dbSet;
 
             if (disableTracking)
-                query = _dbSet.AsQueryable();
+                query = query.AsNoTracking();
 
             if (!string.IsNullOrWhiteSpace(includeString))
                 query = query.Include(includeString);

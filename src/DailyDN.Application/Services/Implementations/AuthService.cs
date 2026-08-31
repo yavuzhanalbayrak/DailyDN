@@ -4,6 +4,7 @@ using DailyDN.Domain.Entities;
 using DailyDN.Infrastructure.Models;
 using DailyDN.Infrastructure.UnitOfWork;
 using DailyDN.Infrastructure.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using DailyDN.Infrastructure.Helpers;
 using DailyDN.Domain.ValueObjects;
@@ -13,10 +14,10 @@ namespace DailyDN.Application.Services.Implementations
     public class AuthService(
         IUnitOfWork uow,
         IPasswordHasher<User> passwordHasher,
+        IHttpContextAccessor httpContextAccessor,
         ITokenService tokenService,
         ISmsService smsService,
         IMailService mailService,
-        IMailTemplateService mailTemplateService,
         IOtpService otpService
     ) : IAuthService
     {
@@ -52,11 +53,18 @@ namespace DailyDN.Application.Services.Implementations
             await uow.Users.UpdateAsync(user);
             await uow.SaveChangesAsync();
 
+#if DEBUG
             return Result.Success(new
             {
                 Guid = guid.ToString(),
-                Otp = otp // Fake sms provider olduğu için otp response içinde dönülüyor.
+                Otp = otp // Yalnızca yerel geliştirme/debug ortamında test kolaylığı için
             });
+#else
+            return Result.Success(new
+            {
+                Guid = guid.ToString()
+            });
+#endif
         }
 
         public async Task<Result> RegisterAsync(
@@ -95,18 +103,14 @@ namespace DailyDN.Application.Services.Implementations
             user.GenerateEmailVerificationToken();
 
             var verifyLink = $"https://frontend-app/confirm-email?token={user.EmailVerificationToken}";
-            var html = await mailTemplateService.GetTemplateAsync(
-                "VerifyEmailTemplate.html",
-                new Dictionary<string, string>
+            await mailService.SendTemplateEmailAsync(
+                toList: [user.Email.Value],
+                subject: "Verify Your Email",
+                templateName: "VerifyEmailTemplate.html",
+                templateParameters: new Dictionary<string, string>
                 {
                     { "VERIFY_LINK", verifyLink }
                 }
-            );
-
-            await mailService.SendEmailAsync(
-                toList: [user.Email.Value],
-                subject: "Verify Your Email",
-                body: html
             );
 
             await uow.Users.AddAsync(user, cancellationToken);
@@ -117,23 +121,17 @@ namespace DailyDN.Application.Services.Implementations
 
         public async Task<TokenResponse?> RefreshTokenAsync(string refreshToken)
         {
-            var requestRefreshTokenHash = HashHelper.HashSha256(refreshToken);
+            var ipAddress = httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString() ?? "";
+            var userAgent = httpContextAccessor.HttpContext?.Request.Headers.UserAgent.ToString() ?? "";
 
-            var session = await uow.UserSessions.FirstOrDefaultAsync(us => us.RefreshTokenHash == requestRefreshTokenHash);
-            if (session is null || !session.IsActive())
+            try
+            {
+                return await tokenService.RotateRefreshToken(refreshToken, ipAddress, userAgent);
+            }
+            catch (Microsoft.IdentityModel.Tokens.SecurityTokenException)
+            {
                 return null;
-
-            var newTokens = await tokenService.GenerateTokens(session.UserId, session.IpAddress, session.UserAgent);
-
-            var newAccessToken = newTokens.AccessToken;
-            var newRefreshTokenExpiry = newTokens.RefreshTokenExpiration;
-            var newRefreshToken = newTokens.RefreshTokenHash;
-
-            session.Revoke();
-            await uow.UserSessions.UpdateAsync(session);
-            await uow.SaveChangesAsync();
-
-            return new TokenResponse(newAccessToken, newRefreshToken, newRefreshTokenExpiry, DateTime.Now);
+            }
         }
 
         public async Task ForgotPasswordAsync(string email)
@@ -147,20 +145,15 @@ namespace DailyDN.Application.Services.Implementations
             await uow.SaveChangesAsync();
 
             var resetLink = $"https://frontend-app/reset-password?token={user.ForgotPasswordToken}";
-            var html = await mailTemplateService.GetTemplateAsync(
-                "ResetPasswordTemplate.html",
-                new Dictionary<string, string>
+            await mailService.SendTemplateEmailAsync(
+                toList: [user.Email.Value],
+                subject: "Reset Your Password",
+                templateName: "ResetPasswordTemplate.html",
+                templateParameters: new Dictionary<string, string>
                 {
                     { "RESET_LINK", resetLink }
                 }
             );
-
-            await mailService.SendEmailAsync(
-                [user.Email],
-                "Reset Your Password",
-                html
-            );
-
         }
 
         public async Task<Result> ResetPasswordAsync(Guid token, string newPassword)
@@ -192,9 +185,9 @@ namespace DailyDN.Application.Services.Implementations
                 await uow.SaveChangesAsync();
                 return Result.SuccessWithMessage("Email verified successfully.");
             }
-            catch (Exception)
+            catch (InvalidOperationException ex)
             {
-                return Result.Failure(new Error("Conflict", "Invalid verification token."));
+                return Result.Failure(new Error("Conflict", ex.Message));
             }
         }
     }

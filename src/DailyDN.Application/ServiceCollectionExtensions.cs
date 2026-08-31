@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using DailyDN.Application.Behaviors;
 using System.Reflection;
 using Microsoft.Extensions.Configuration;
@@ -24,7 +24,7 @@ namespace DailyDN.Application
 
         public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddAutoMapper(typeof(MappingProfile).Assembly);
+            services.AddAutoMapper(cfg => cfg.AddMaps(typeof(MappingProfile).Assembly));
             services.AddValidatorsFromAssembly(ApplicationAssembly.Instance);
             services.AddScoped<IAuthenticatedUser, AuthenticatedUser>();
             services.AddScoped<IPostsService, PostService>();
