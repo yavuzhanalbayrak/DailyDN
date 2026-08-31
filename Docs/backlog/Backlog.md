@@ -44,7 +44,7 @@ Bu doküman, DailyDN projesinde gerçekleştirilen geliştirmelerin, hata düzel
 
 #### 🕒 03:30:00 (UTC+3)
 - [x] **[BUG-02] `ApplicationContext.cs` Audit Loglarında `CreatedBy`/`UpdatedBy` `0` Kalma Sorununun Düzeltilmesi**
-  - **Branch:** `bugfix/audit-current-user-resolution`
+  - **Branch:** `bugfix/core-fixes`
   - **Base:** `origin/develop` (`919d408`)
   - **Commit Hash:** `ffcf8e4`
   - **Commit Mesajı:** `fix(audit): resolve dynamic current user ID in ApplicationContext audit logs`

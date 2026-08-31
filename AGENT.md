@@ -26,11 +26,8 @@ DailyDN; .NET 8/9, Clean Architecture, CQRS (MediatR), EF Core, Redis (Polly Res
 ---
 
 ### 3. 🌿 Git İş Akışı ve Senkronizasyon Kuralları
+- **Tek Bugfix Dalı Stratejisi:** Her hata için ayrı ayrı branch açmak yerine, toplu hata giderme süreçlerinde tek bir **`bugfix/core-fixes`** dalı üzerinden sırayla Conventional Commit'ler atılarak ilerlenir.
 - **Daima Güncel Dal Üzerinden Başlama:** Yeni bir işe başlamadan önce mutlaka `git fetch --all` ve `git pull origin develop` yapılarak uzaktaki en güncel commit alınır.
-- **Doğru Dal İsimlendirme:**
-  - Hata düzeltmeleri: `bugfix/<hata-tanımı>`
-  - Yeni özellikler: `feature/<özellik-tanımı>`
-  - İyileştirmeler: `refactor/<konu-tanımı>`
 - **Conventional Commits Formatı:** `feat:`, `fix:`, `refactor:`, `test:`, `docs:`, `chore:` standartlarına uyulur (`fix(auth): ...`).
 - **Rebase ve Temiz Ağaç:** Dal geride kaldığında `merge` yerine `git rebase origin/develop` tercih edilir; uzak sunucuya push edilirken `--force-with-lease` kullanılır.
 - **Doğrudan Push Yasağı:** `main` veya `develop` dallarına doğrudan push atılamaz; sadece PR ile birleştirilir.

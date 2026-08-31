@@ -43,8 +43,8 @@ gitGraph
 |---|---|---|---|
 | **Ana Sürüm** | `main` | `main` | Canlıya (Production) çıkan, her an kararlı ve test edilmiş kod. |
 | **Entegrasyon** | `develop` | `develop` | Geliştiricilerin özelliklerini birleştirdiği ana geliştirme dalı. |
-| **Yeni Özellik** | `feature/<özellik-adı>` | `feature/comment-system`<br/>`feature/google-auth` | Yeni bir modül, entity veya endpoint geliştirilirken. |
-| **Hata Düzeltme** | `bugfix/<hata-adı>` | `bugfix/token-rotation-null`<br/>`bugfix/user-avatar-upload` | `develop` dalındaki bir hatayı düzeltirken. |
+| **Toplu Bugfix**| `bugfix/core-fixes` | `bugfix/core-fixes` | Her bug için ayrı branch açmak yerine, sırayla commit atılan ortak hata düzeltme dalı. |
+| **Yeni Özellik** | `feature/<özellik-adı>` | `feature/comment-system` | Yeni bir modül veya büyük özellik geliştirilirken. |
 | **Acil Yama** | `hotfix/<hata-adı>` | `hotfix/security-jwt-leak` | `main` dalında canlıda çıkan kritik bir hatayı çözerken. |
 | **İyileştirme** | `refactor/<konu>` | `refactor/redis-cache-service` | Davranış değiştirmeden kod temizliği/optimizasyon yaparken. |
 | **Dokümantasyon**| `docs/<konu>` | `docs/add-api-guide` | Yalnızca döküman eklerken/güncellerken. |
