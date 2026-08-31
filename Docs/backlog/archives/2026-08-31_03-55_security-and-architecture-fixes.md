@@ -9,7 +9,17 @@
 
 ## 📑 Arşivlenen Görevler ve Değişiklik Günlüğü (Changelog)
 
-### 1. 🕒 03:54:00 (UTC+3) - [ARCH-04] `AuthService.RefreshTokenAsync` ve `TokenService.RotateRefreshToken` DRY Refactoring
+### 1. 🕒 05:15:00 (UTC+3) - [SEC-06] AutoMapper 14.0.0 Yüksek Öncelikli Güvenlik Açığı (`NU1903` / `GHSA-rvv3-g6hj-g44x`) Yaması
+- **Commit:** `fix(deps): upgrade AutoMapper to 16.2.0 to resolve NU1903 vulnerability`
+- **Bağlı Dosyalar:** `src/DailyDN.Application/DailyDN.Application.csproj`, `src/DailyDN.Application/ServiceCollectionExtensions.cs`
+- **Açıklama:**
+  - `AutoMapper` paketi 14.0.0'dan güvenlik açığı kapatılmış en güncel 16.2.0 sürümüne yükseltildi.
+  - `ServiceCollectionExtensions.cs` içindeki DI tescili yeni API (`cfg => cfg.AddMaps(...)`) standardına uyarlandı.
+  - Derleme ve restore sırasındaki 2 adet `NU1903` güvenlik uyarısı tamamen sıfırlandı.
+
+---
+
+### 2. 🕒 03:54:00 (UTC+3) - [ARCH-04] `AuthService.RefreshTokenAsync` ve `TokenService.RotateRefreshToken` DRY Refactoring
 - **Commit:** `0804473` (`refactor(auth): integrate AuthService.RefreshTokenAsync with TokenService.RotateRefreshToken`)
 - **Bağlı Dosyalar:** `src/DailyDN.Application/Services/Implementations/AuthService.cs`
 - **Açıklama:**
