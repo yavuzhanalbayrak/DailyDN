@@ -4,6 +4,7 @@ using DailyDN.Domain.Entities;
 using DailyDN.Infrastructure.Models;
 using DailyDN.Infrastructure.UnitOfWork;
 using DailyDN.Infrastructure.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using DailyDN.Infrastructure.Helpers;
 using DailyDN.Domain.ValueObjects;
@@ -13,6 +14,7 @@ namespace DailyDN.Application.Services.Implementations
     public class AuthService(
         IUnitOfWork uow,
         IPasswordHasher<User> passwordHasher,
+        IHttpContextAccessor httpContextAccessor,
         ITokenService tokenService,
         ISmsService smsService,
         IMailService mailService,
@@ -124,23 +126,17 @@ namespace DailyDN.Application.Services.Implementations
 
         public async Task<TokenResponse?> RefreshTokenAsync(string refreshToken)
         {
-            var requestRefreshTokenHash = HashHelper.HashSha256(refreshToken);
+            var ipAddress = httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString() ?? "";
+            var userAgent = httpContextAccessor.HttpContext?.Request.Headers.UserAgent.ToString() ?? "";
 
-            var session = await uow.UserSessions.FirstOrDefaultAsync(us => us.RefreshTokenHash == requestRefreshTokenHash);
-            if (session is null || !session.IsActive())
+            try
+            {
+                return await tokenService.RotateRefreshToken(refreshToken, ipAddress, userAgent);
+            }
+            catch (Microsoft.IdentityModel.Tokens.SecurityTokenException)
+            {
                 return null;
-
-            var newTokens = await tokenService.GenerateTokens(session.UserId, session.IpAddress, session.UserAgent);
-
-            var newAccessToken = newTokens.AccessToken;
-            var newRefreshTokenExpiry = newTokens.RefreshTokenExpiration;
-            var newRefreshToken = newTokens.RefreshTokenHash;
-
-            session.Revoke();
-            await uow.UserSessions.UpdateAsync(session);
-            await uow.SaveChangesAsync();
-
-            return new TokenResponse(newAccessToken, newRefreshToken, newRefreshTokenExpiry, DateTime.Now);
+            }
         }
 
         public async Task ForgotPasswordAsync(string email)
