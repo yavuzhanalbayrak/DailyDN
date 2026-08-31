@@ -7,13 +7,6 @@ Bu doküman, DailyDN projesinde gerçekleştirilen geliştirmelerin, hata düzel
 ## ⏳ Aktif / Sıradaki Görevler (Pending & In Progress)
 <!-- Agent veya geliştirici işi yarıda bıraktığında veya sonraki oturuma geçildiğinde buradaki maddelerden devam edilir -->
 
-- [ ] **Görev Adı: [BUG-05] `GenericRepository.cs` `disableTracking` Parametresinin İlk Overload'da Yok Sayılması**
-  - **Kategori:** 🔴 Kritik Hata (EF Core Performance / ChangeTracker)
-  - **Mevcut Durum:** Beklemede.
-  - **Tamamlanması Gerekenler:** `GetPaginatedAsync` ilk overload'u içindeki `query = _dbSet.AsQueryable();` çağrısı `query = query.AsNoTracking();` ile değiştirilecek.
-  - **Bağlı Dosyalar:**
-    - `src/DailyDN.Infrastructure/Repositories/GenericRepository.cs`
-
 - [ ] **Görev Adı: [BUG-06] `AuthService.VerifyEmailAsync` - Syntax Lekesi ve Geniş `catch` Yakalama**
   - **Kategori:** 🔴 Kritik Hata (Exception Handling / Code Quality)
   - **Mevcut Durum:** Beklemede.
@@ -41,6 +34,17 @@ Bu doküman, DailyDN projesinde gerçekleştirilen geliştirmelerin, hata düzel
 <!-- Tamamlanan maddeler tarih ve saat damgasıyla buraya taşınır -->
 
 ### 📅 2026-08-31
+
+#### 🕒 03:39:00 (UTC+3)
+- [x] **[BUG-05] `GenericRepository.cs` `disableTracking` Parametresinin İlk Overload'da Yok Sayılması Hatasının Düzeltilmesi**
+  - **Branch:** `bugfix/core-fixes`
+  - **Commit Mesajı:** `fix(repository): properly call AsNoTracking when disableTracking is true in GetPaginatedAsync`
+  - **Yapılan İşlemler:**
+    - `GenericRepository.GetPaginatedAsync` ilk overload'unda `if (disableTracking) query = _dbSet.AsQueryable();` çağrısı `query = query.AsNoTracking();` ile değiştirildi.
+    - Böylece sayfalama sorgularında gereksiz ChangeTracker bellek tüketimi önlendi.
+    - `dotnet test` koşturuldu ve tüm 35 test başarıyla geçti.
+  - **Bağlı Dosyalar:**
+    - `src/DailyDN.Infrastructure/Repositories/GenericRepository.cs`
 
 #### 🕒 03:38:00 (UTC+3)
 - [x] **[BUG-04] `UserService.cs` Profile Photo Cache Invalidation Eksikliğinin Giderilmesi**
