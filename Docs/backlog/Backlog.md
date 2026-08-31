@@ -14,19 +14,24 @@ Bu doküman, DailyDN projesinde gerçekleştirilen geliştirmelerin, hata düzel
   - **Bağlı Dosyalar:**
     - `src/DailyDN.Application/Services/Implementations/AuthService.cs`
 
-- [ ] **Görev Adı: [ARCH-01] `Program.cs` Middleware Sıralaması ve Mükerrer `UseAuthorization` Düzeltmesi**
-  - **Kategori:** 🟡 Mimari (Middleware Pipeline)
-  - **Mevcut Durum:** Beklemede.
-  - **Tamamlanması Gerekenler:** `CorrelationIdMiddleware` ve `ErrorHandlerMiddleware` zincirin en başına alınacak, mükerrer `UseAuthorization()` kaldırılacak.
-  - **Bağlı Dosyalar:**
-    - `src/DailyDN.API/Program.cs`
-
 ---
 
 ## ✅ Tamamlanan Görevler (Arşiv / Changelog)
 <!-- Tamamlanan maddeler tarih ve saat damgasıyla buraya taşınır -->
 
 ### 📅 2026-08-31
+
+#### 🕒 03:41:00 (UTC+3)
+- [x] **[ARCH-01] `Program.cs` Middleware Sıralaması ve Mükerrer `UseAuthorization` Düzeltmesi**
+  - **Branch:** `bugfix/core-fixes`
+  - **Commit Mesajı:** `fix(api): correct middleware pipeline execution order and remove redundant UseAuthorization`
+  - **Yapılan İşlemler:**
+    - `Program.cs` içinde `CorrelationIdMiddleware` ve `ErrorHandlerMiddleware` boru hattının en başına (tüm request ve exception'ları yakalayacak şekilde) taşındı.
+    - `UseAuthentication` ve `AuthenticatedUserMiddleware` yetkilendirmeden hemen önceye yerleştirildi.
+    - Mükerrer olan 2. `app.UseAuthorization()` çağrısı kaldırıldı.
+    - `dotnet test` koşturuldu ve tüm 35 test başarıyla geçti.
+  - **Bağlı Dosyalar:**
+    - `src/DailyDN.API/Program.cs`
 
 #### 🕒 03:40:00 (UTC+3)
 - [x] **[BUG-06] `AuthService.VerifyEmailAsync` - Exception Handling ve İyileştirilmesi**
