@@ -41,7 +41,8 @@ Bu doküman, DailyDN projesinde aktif olarak yürütülen ve sırada bekleyen g�
 ## 🗄️ Tamamlanan Görevler Arşivi (Changelog Archives)
 <!-- En yeniden en eskiye (Ters Kronolojik) sıralı arşiv paketleri -->
 
-- 📦 **[2026-08-31 05:15:00 UTC+3] Güvenlik & Mimari Düzeltmeleri (8 Görev)**: [`archives/2026-08-31_03-55_security-and-architecture-fixes.md`](file:///c:/Users/Kutbay/Desktop/Muhammed/DailyDN/Docs/backlog/archives/2026-08-31_03-55_security-and-architecture-fixes.md)
+- 📦 **[2026-08-31 05:20:00 UTC+3] Güvenlik & Mimari Düzeltmeleri (9 Görev)**: [`archives/2026-08-31_03-55_security-and-architecture-fixes.md`](file:///c:/Users/Kutbay/Desktop/Muhammed/DailyDN/Docs/backlog/archives/2026-08-31_03-55_security-and-architecture-fixes.md)
+  - `BUG-01.1`: OtpService.VerifyOtpAsync ArgumentOutOfRangeException düzeltmesi
   - `SEC-06`: AutoMapper 14.0.0 -> 16.2.0 NU1903 güvenlik açığı yükseltmesi
   - `SEC-01`: AuthService Login OTP sızıntısı önleme (`#if DEBUG`)
   - `SEC-02 & SEC-03`: FileStorageService Whitelist uzantı, Path Traversal önleme ve URL desteği

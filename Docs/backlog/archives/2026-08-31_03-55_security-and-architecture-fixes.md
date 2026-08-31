@@ -7,9 +7,16 @@
 
 ---
 
-## 📑 Arşivlenen Görevler ve Değişiklik Günlüğü (Changelog)
+### 1. 🕒 05:20:00 (UTC+3) - [BUG-01.1] `OtpService.VerifyOtpAsync` Dizi Sınır Aşımı Düzeltmesi ve Dal Temizliği
+- **Commit:** `486929b` (`fix(auth): prevent ArgumentOutOfRangeException in OtpService.VerifyOtpAsync`)
+- **Bağlı Dosyalar:** `src/DailyDN.Application/Services/Implementations/OtpService.cs`
+- **Açıklama:**
+  - Upstream SonarQube refactoring'i sırasında `AuthService`'ten `OtpService`'e taşınan `VerifyOtpAsync` metodu içindeki `userList[0]` doğrudan indeks erişimi `FirstOrDefaultAsync` ve null kontrolü ile güvenli hale getirildi.
+  - Artık aktif kullanılan `IOtpService` implementasyonu %100 güvenli hale getirildi ve gereksiz ara dallar (`bugfix/auth-verify-otp-out-of-range`, `bugfix/audit-current-user-resolution`) temizlendi.
 
-### 1. 🕒 05:15:00 (UTC+3) - [SEC-06] AutoMapper 14.0.0 Yüksek Öncelikli Güvenlik Açığı (`NU1903` / `GHSA-rvv3-g6hj-g44x`) Yaması
+---
+
+### 2. 🕒 05:15:00 (UTC+3) - [SEC-06] AutoMapper 14.0.0 Yüksek Öncelikli Güvenlik Açığı (`NU1903` / `GHSA-rvv3-g6hj-g44x`) Yaması
 - **Commit:** `fix(deps): upgrade AutoMapper to 16.2.0 to resolve NU1903 vulnerability`
 - **Bağlı Dosyalar:** `src/DailyDN.Application/DailyDN.Application.csproj`, `src/DailyDN.Application/ServiceCollectionExtensions.cs`
 - **Açıklama:**
