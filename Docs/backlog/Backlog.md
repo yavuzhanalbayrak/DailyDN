@@ -7,12 +7,19 @@ Bu doküman, DailyDN projesinde gerçekleştirilen geliştirmelerin, hata düzel
 ## ⏳ Aktif / Sıradaki Görevler (Pending & In Progress)
 <!-- Agent veya geliştirici işi yarıda bıraktığında veya sonraki oturuma geçildiğinde buradaki maddelerden devam edilir -->
 
-- [ ] **Görev Adı: [BUG-04] `UserService.cs` Profile Photo Cache Invalidation Eksikliği**
-  - **Kategori:** 🔴 Kritik Hata (Redis Cache Invalidation)
+- [ ] **Görev Adı: [BUG-05] `GenericRepository.cs` `disableTracking` Parametresinin İlk Overload'da Yok Sayılması**
+  - **Kategori:** 🔴 Kritik Hata (EF Core Performance / ChangeTracker)
   - **Mevcut Durum:** Beklemede.
-  - **Tamamlanması Gerekenler:** `UpdateProfilePhoto` metodunda veritabanı kaydı sonrası `await redis.RemoveAsync($"user:{userId}");` çağrısı eklenecek.
+  - **Tamamlanması Gerekenler:** `GetPaginatedAsync` ilk overload'u içindeki `query = _dbSet.AsQueryable();` çağrısı `query = query.AsNoTracking();` ile değiştirilecek.
   - **Bağlı Dosyalar:**
-    - `src/DailyDN.Application/Services/Implementations/UserService.cs`
+    - `src/DailyDN.Infrastructure/Repositories/GenericRepository.cs`
+
+- [ ] **Görev Adı: [BUG-06] `AuthService.VerifyEmailAsync` - Syntax Lekesi ve Geniş `catch` Yakalama**
+  - **Kategori:** 🔴 Kritik Hata (Exception Handling / Code Quality)
+  - **Mevcut Durum:** Beklemede.
+  - **Tamamlanması Gerekenler:** Çift noktalı virgül temizlenecek, `catch (Exception)` yerine domain exception `InvalidOperationException` spesifik yakalanacak.
+  - **Bağlı Dosyalar:**
+    - `src/DailyDN.Application/Services/Implementations/AuthService.cs`
 
 - [ ] **Görev Adı: [SEC-01] `AuthService.LoginAsync` OTP Response Sızıntısının Önlenmesi**
   - **Kategori:** 🔴 Güvenlik (2FA Bypass Riski)
@@ -34,6 +41,17 @@ Bu doküman, DailyDN projesinde gerçekleştirilen geliştirmelerin, hata düzel
 <!-- Tamamlanan maddeler tarih ve saat damgasıyla buraya taşınır -->
 
 ### 📅 2026-08-31
+
+#### 🕒 03:38:00 (UTC+3)
+- [x] **[BUG-04] `UserService.cs` Profile Photo Cache Invalidation Eksikliğinin Giderilmesi**
+  - **Branch:** `bugfix/core-fixes`
+  - **Commit Mesajı:** `fix(cache): invalidate redis user cache on profile photo update`
+  - **Yapılan İşlemler:**
+    - `UserService.UpdateProfilePhoto` metoduna veritabanı güncellemesi sonrası `await redis.RemoveAsync($"{CacheKeyPrefix}{userId}");` çağrısı eklendi.
+    - Böylece fotoğraf güncellendiğinde Redis'teki eski kullanıcı verisi temizlenerek sonraki isteklerde anında güncel avatarın dönmesi sağlandı.
+    - `dotnet test` koşturuldu ve tüm 35 test başarıyla geçti.
+  - **Bağlı Dosyalar:**
+    - `src/DailyDN.Application/Services/Implementations/UserService.cs`
 
 #### 🕒 03:36:00 (UTC+3)
 - [x] **[BUG-03] `DailyDNDbContext` - Eksik DbSet Tanımlamalarının Eklenmesi**

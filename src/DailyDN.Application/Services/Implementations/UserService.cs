@@ -70,6 +70,8 @@ namespace DailyDN.Application.Services.Implementations
             await uow.Users.UpdateAsync(user);
             await uow.SaveChangesAsync();
 
+            await redis.RemoveAsync($"{CacheKeyPrefix}{userId}");
+
             return Result.Success(photoUrl);
         }
     }
