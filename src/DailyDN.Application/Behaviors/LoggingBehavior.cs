@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
+using System.Collections.Concurrent;
 using DailyDN.Infrastructure.Services;
 using DailyDN.Application.Common.Attributes;
 
@@ -12,6 +13,8 @@ public class LoggingBehavior<TRequest, TResponse>(
 ) : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
 {
+    private static readonly ConcurrentDictionary<Type, PropertyInfo[]> LoggablePropertiesCache = new();
+
     public async Task<TResponse> Handle(
         TRequest request,
         RequestHandlerDelegate<TResponse> next,
@@ -20,10 +23,13 @@ public class LoggingBehavior<TRequest, TResponse>(
     {
         var userInfo = authenticatedUser?.UserId.ToString() ?? "Anonymous";
 
-        var loggableProperties = request.GetType()
-            .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-            .Where(p => p.GetCustomAttribute<DoNotLogAttribute>() == null)
-            .ToDictionary(p => p.Name, p => p.GetValue(request));
+        var properties = LoggablePropertiesCache.GetOrAdd(typeof(TRequest), type =>
+            type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Where(p => p.GetCustomAttribute<DoNotLogAttribute>() == null)
+                .ToArray()
+        );
+
+        var loggableProperties = properties.ToDictionary(p => p.Name, p => p.GetValue(request));
 
         logger.LogInformation("Handling {RequestName} by user ID: {@User}. Payload: {@Request}",
             typeof(TRequest).Name,
