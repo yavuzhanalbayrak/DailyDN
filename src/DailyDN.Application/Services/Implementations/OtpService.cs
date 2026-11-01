@@ -23,8 +23,9 @@ namespace DailyDN.Application.Services.Implementations
             var ipAddress = httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString() ?? "";
             var userAgent = httpContextAccessor.HttpContext?.Request.Headers.UserAgent.ToString() ?? "";
 
-            var userList = await uow.Users.GetAsync(u => u.Guid == guid);
-            var user = userList[0];
+            var user = await uow.Users.FirstOrDefaultAsync(u => u.Guid == guid);
+            if (user is null)
+                return null;
 
             if (user.IsOtpValid(otp, TimeSpan.FromMinutes(1)))
             {

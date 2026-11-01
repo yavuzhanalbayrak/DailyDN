@@ -8,7 +8,7 @@ namespace DailyDN.Infrastructure.Contexts
     public abstract class ApplicationContext(DbContextOptions options, ILogger<DailyDNDbContext> logger, IAuthenticatedUser currentUser) : DbContext(options), IApplicationContext
     {
         private readonly ILogger<DailyDNDbContext> _logger = logger;
-        private readonly int _currentUser = currentUser.UserId;
+        private readonly IAuthenticatedUser _currentUser = currentUser;
 
         public override int SaveChanges()
         {
@@ -31,6 +31,8 @@ namespace DailyDN.Infrastructure.Contexts
                     e.State == EntityState.Modified ||
                     (e.State == EntityState.Deleted && e.Entity is Entity)));
 
+            var currentUserId = _currentUser.UserId;
+
             foreach (var entityEntry in entries)
             {
                 if (entityEntry.Entity is Entity entity)
@@ -38,16 +40,16 @@ namespace DailyDN.Infrastructure.Contexts
                     if (entityEntry.State == EntityState.Added)
                     {
                         entity.CreatedAt = DateTime.UtcNow;
-                        entity.CreatedBy = _currentUser;
+                        entity.CreatedBy = currentUserId;
                         _logger.LogInformation("Entity of type {EntityType} with ID {EntityId} created by {User}",
-                            entity.GetType().Name, entity.Id, _currentUser);
+                            entity.GetType().Name, entity.Id, currentUserId);
                     }
                     else if (entityEntry.State == EntityState.Modified)
                     {
                         entity.UpdatedAt = DateTime.UtcNow;
-                        entity.UpdatedBy = _currentUser;
+                        entity.UpdatedBy = currentUserId;
                         _logger.LogInformation("Entity of type {EntityType} with ID {EntityId} updated by {User}",
-                            entity.GetType().Name, entity.Id, _currentUser);
+                            entity.GetType().Name, entity.Id, currentUserId);
                     }
                     else if (entityEntry.State == EntityState.Deleted)
                     {
@@ -55,9 +57,9 @@ namespace DailyDN.Infrastructure.Contexts
                         entityEntry.State = EntityState.Modified;
                         entity.IsDeleted = true;
                         entity.UpdatedAt = DateTime.UtcNow;
-                        entity.UpdatedBy = _currentUser;
+                        entity.UpdatedBy = currentUserId;
                         _logger.LogInformation("Entity of type {EntityType} with ID {EntityId} soft-deleted by {User}",
-                            entity.GetType().Name, entity.Id, _currentUser);
+                            entity.GetType().Name, entity.Id, currentUserId);
                     }
                 }
             }

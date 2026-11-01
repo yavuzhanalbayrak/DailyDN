@@ -1,39 +1,26 @@
 using DailyDN.Application.Exceptions;
-using DailyDN.Application.Exceptions.Enum;
 using DailyDN.Infrastructure.Services;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DailyDN.Application.Common.Attributes
 {
-    [AttributeUsage(AttributeTargets.All)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, Inherited = true, AllowMultiple = true)]
     public class AuthorizedAttribute(string requiredClaim) : Attribute, IAuthorizationFilter
     {
-
         public void OnAuthorization(AuthorizationFilterContext context)
         {
-            var authenticatedUser = context.HttpContext.RequestServices.GetService<IAuthenticatedUser>();
-
-            if (authenticatedUser?.Claims is null || authenticatedUser.Claims.Count == 0)
+            var user = context.HttpContext.User;
+            if (user?.Identity == null || !user.Identity.IsAuthenticated)
             {
-                throw new ApiAuthenticationException($"Uygulama Yöneticisinden Yetki Tanımlaması Yapmasını İsteyeniz.")
-                {
-                    FailCode = FailCode.InvalidClaim,
-                    StatusCode = 403
-                };
+                throw new AuthorizationException("Unauthorized", 401, "User is not authenticated.");
             }
 
+            var authenticatedUser = context.HttpContext.RequestServices.GetRequiredService<IAuthenticatedUser>();
 
-            var userRole = authenticatedUser.Claims.Contains(requiredClaim);
-
-            if (!userRole)
+            if (authenticatedUser.Claims == null || !authenticatedUser.Claims.Contains(requiredClaim))
             {
-                throw new ApiAuthenticationException($"User is not authorized. Claim Name : {requiredClaim}")
-                {
-                    FailCode = FailCode.InvalidClaim,
-                    StatusCode = 403
-
-                };
+                throw new AuthorizationException("Forbidden", 403, $"User is not authorized. Required claim: {requiredClaim}");
             }
         }
     }

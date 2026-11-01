@@ -5,9 +5,21 @@ using Microsoft.Extensions.Options;
 
 namespace DailyDN.Infrastructure.Services.Impl
 {
-    public class SmtpMailService(IOptions<SmtpSettings> smtpOptions) : IMailService
+    public class SmtpMailService(IOptions<SmtpSettings> smtpOptions, IMailTemplateService templateService) : IMailService
     {
         private readonly SmtpSettings _smtpSettings = smtpOptions.Value;
+
+        public async Task SendTemplateEmailAsync(
+            List<string> toList,
+            string subject,
+            string templateName,
+            Dictionary<string, string> templateParameters,
+            List<string>? ccList = null,
+            List<string>? bccList = null)
+        {
+            var body = await templateService.GetTemplateAsync(templateName, templateParameters);
+            await SendEmailAsync(toList, subject, body, ccList, bccList);
+        }
 
         /// <summary>
         /// Mail gönderir. To, CC ve BCC listelerini destekler.
